@@ -51,10 +51,10 @@ module alu (
 
     // Comparsions
     // SLT
-    assign slt_output = {31'b0, $signed(operand_a) < $signed(operand_b)};
+    assign slt_output = {31'b0, $signed(operand_a) < $signed(operand_b)}; // concatenation
     // SLTU
     // TODO (but I think its already ok) : If comparing x0 and rs2, if rs2 is != 0, then res is 1
-    assign sltu_output = {31'b0, operand_a < operand_b};
+    assign sltu_output = {31'b0, operand_a < operand_b}; // concatenation
 
 
     // Im not sure about if its signed or unsigned so for now im doing signed

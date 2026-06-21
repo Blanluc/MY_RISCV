@@ -16,7 +16,7 @@ alu alu (
             .result (result)
 			);
 
-
+// TESTING ALL THE OPS
 initial begin
     clk = 0;
     #10;
