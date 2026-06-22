@@ -1,5 +1,5 @@
 // register file
-import pkg::*;
+`include "headers/alu_ops.svh"
 module alu (
     input  logic [3:0]  operator,
     input  logic [31:0] operand_a,

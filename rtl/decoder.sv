@@ -1,5 +1,8 @@
 // decoder
+`include "headers/opcodes.svh"
 module decoder (
+
+    // decoder
     input  logic [31:0] instr,
     output logic [6:0]  opcode,
     output logic [4:0]  rd,
@@ -8,6 +11,7 @@ module decoder (
     output logic [4:0]  rs1,
     output logic [4:0]  rs2,
     output logic [31:0] imm
+
 );
 
     // INSTRUCTION FORMATS : RISUJ
@@ -38,7 +42,7 @@ module decoder (
     assign rs1=instr[19:15];
     assign rs2=instr[24:20];
 
-    // Types of Imm depending on format
+    // Types of Imm depending on format <=> IMM generator already incorporated!
     assign imm_I = {{21{instr[31]}}, instr[30:20]};
     assign imm_S = {{21{instr[31]}}, instr[30:25], instr[11:8], instr[7]};
     assign imm_B = {{20{instr[31]}}, instr[7],instr[30:25], instr[11:8], 1'b0};
@@ -47,22 +51,22 @@ module decoder (
 
     always_comb begin
 
-        case(opcode[6:2])
+        case(opcode)
 
         // LOAD / OP-IMM / JALR
-        5'b00000, 5'b00100, 5'b11001 : imm = imm_I;
+        `OPCODE_LOAD, `OPCODE_ITYPE, `OPCODE_JALR : imm = imm_I;
 
         // STORE
-        5'b01000                   : imm = imm_S;
+        `OPCODE_STORE                   : imm = imm_S;
 
         // LUI / AUIPC
-        5'b01101 , 5'b00101        : imm = imm_U;
+        `OPCODE_LUI , `OPCODE_AUIPC        : imm = imm_U;
 
         // BRANCH
-        5'b11000                   : imm = imm_B;
+        `OPCODE_BRANCH                   : imm = imm_B;
 
         // JAL
-        5'b11011                   : imm = imm_J;
+        `OPCODE_JAL                 : imm = imm_J;
 
         // DEFAULT
         default                 : imm = imm_I;
