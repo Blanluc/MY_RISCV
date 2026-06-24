@@ -37,8 +37,10 @@ logic [31:0] instr_id;
 if_id_reg if_id_reg(
     .clk   (clk),
     .rst_n (rst_n),
+
     .pc_if (pc_if),
     .instr_if (instr_if),
+
     .pc_id (pc_id),
     .instr_id (instr_id)
 
@@ -80,6 +82,7 @@ control_unit control_unit (
             .reg_write (reg_write_id),
             .wb_sel (wb_sel_id)
 			);
+    
 
 logic [6:0] opcode_ex;
 logic [4:0]  rd_ex;
@@ -95,6 +98,7 @@ logic        rs2_sel_ex;
 logic        rs1_sel_ex;
 logic        reg_write_ex;
 logic [2:0]  wb_sel_ex;
+logic [3:0] alu_op_ex; // alu sel
 
 id_ex_reg id_ex_reg(
     .clk   (clk),
@@ -132,6 +136,92 @@ id_ex_reg id_ex_reg(
     .mem_r_ex(mem_r_ex),
     .mem_w_ex(mem_w_ex)
 );
+
+// EX STAGE
+
+logic [31:0] alu_result_ex; // alu output
+logic [31:0] src1_data_ex;
+logic [31:0] src2_data_ex;
+logic [31:0] alu_operand_a_ex;
+logic [31:0] alu_operand_b_ex;
+
+
+logic [31:0] pc_wb;
+logic [4:0]  rd_wb;
+logic        mem_r_wb;
+logic        mem_w_wb;
+logic        reg_write_wb;
+logic [2:0]  wb_sel_wb;
+logic [31:0] alu_result_wb; // alu output
+
+
+
+
+// Todo : operand selecion
+// there will be more options once wb is implemented
+
+regfile regfile (	
+            .clk  (clk),
+            .w_addr (0),
+            .w_data (0),
+            .w_en (0),
+            .r_addr1 (rs1_ex),
+            .r_data1 (src1_data_ex),
+            .r_addr2 (rs2_ex),
+            .r_data2 (src2_data_ex)
+			);
+
+// lets start with mux for src b selecting btwn b or imm
+always_comb begin
+// ALU SOURCE B MUX
+case (rs2_sel_ex)
+    //1'b0 : alu_operand_b_ex = rs2_ex;
+    1'b1 : alu_operand_b_ex = imm_ex;
+    default : alu_operand_b_ex = src2_data_ex;
+endcase
+
+//for now we leave this like this
+alu_operand_a_ex = src1_data_ex;
+end
+
+alu_controller alu_controller(
+    .funct3 (funct3_ex),
+    .funct7 (funct7_ex),
+    .opcode (opcode_ex),
+    .alu_op (alu_op_ex)
+);
+
+alu alu(
+    .operator (alu_op_ex),
+    .operand_a (alu_operand_a_ex),
+    .operand_b (alu_operand_b_ex),
+    .result (alu_result_ex)
+);
+
+ex_wb_reg ex_wb_reg(
+    .clk   (clk),
+    .rst_n (rst_n),
+
+    .pc_wb (pc_wb),
+    .rd_wb (rd_wb),
+    .mem_r_wb (mem_r_wb),
+    .mem_w_wb (mem_w_wb),
+    .wb_sel_wb (wb_sel_wb),
+    .reg_write_wb (reg_write_wb),
+    .alu_result_wb (alu_result_wb),
+    
+    .pc_ex (pc_ex),
+    .rd_ex (rd_ex),
+    .mem_r_ex (mem_r_ex),
+    .mem_w_ex (mem_w_ex),
+    .wb_sel_ex (wb_sel_ex),
+    .reg_write_ex (reg_write_ex),
+    .alu_result_ex (alu_result_ex)
+
+);
+
+
+
 
 
 

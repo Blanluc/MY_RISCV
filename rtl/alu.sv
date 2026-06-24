@@ -20,6 +20,8 @@ module alu (
     logic [31:0]  srl_output;
     logic [31:0]  slt_output;
     logic [31:0]  sltu_output;
+
+    // TODO : How to handle NOP?
     
 
     //logic [31:0]  operand_b_negate;
@@ -50,7 +52,7 @@ module alu (
     assign srl_output = operand_a >> (operand_b & 32'b11111);
 
     // Comparsions
-    // SLT
+    // SLT (Set if Less Than)
     assign slt_output = {31'b0, $signed(operand_a) < $signed(operand_b)}; // concatenation
     // SLTU
     // TODO (but I think its already ok) : If comparing x0 and rs2, if rs2 is != 0, then res is 1
@@ -84,19 +86,19 @@ module alu (
 
         case(operator)
 
-        ALU_ADD    : result = add_output;
-        ALU_SUB    : result = sub_output;
+        `ALU_ADD    : result = add_output;
+        `ALU_SUB    : result = sub_output;
 
-        ALU_XOR        : result = xor_output;
-        ALU_OR         : result = or_output;
-        ALU_AND        : result = and_output;
+        `ALU_XOR        : result = xor_output;
+        `ALU_OR         : result = or_output;
+        `ALU_AND        : result = and_output;
 
-        ALU_SRA        : result = sra_output;
-        ALU_SLL        : result = sll_output;
-        ALU_SRL        : result = srl_output;
+        `ALU_SRA        : result = sra_output;
+        `ALU_SLL        : result = sll_output;
+        `ALU_SRL        : result = srl_output;
 
-        ALU_SLT        : result = slt_output;
-        ALU_SLTU       : result = sltu_output;
+        `ALU_SLT        : result = slt_output;
+        `ALU_SLTU       : result = sltu_output;
 
         default    : result = add_output;
         endcase

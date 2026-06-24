@@ -3,6 +3,7 @@
 #include "Vtb_core.cpp"
 #include "Vtb_core___024root__0.cpp"
 #include "Vtb_core__main.cpp"
+#include "Vtb_core__ConstPool__0__Slow.cpp"
 #include "Vtb_core___024root__Slow.cpp"
 #include "Vtb_core___024root__0__Slow.cpp"
 #include "Vtb_core__Syms__Slow.cpp"

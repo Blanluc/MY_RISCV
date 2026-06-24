@@ -27,20 +27,25 @@ initial begin
     clk = 0;
     //$monitor("INSTR=%b", instr);
     reset_release();
-  #40;
+  #100;
     $finish;
 end
 
-
+int i=0;
 always #5 clk = ~clk;
 
 always @(posedge clk) begin
+  $display("CYCLE=%d",i);
+  $display("---------------------------");
   $display("STAGE IF : PC=%0h INSTR=%0h", core.pc_if, core.instr_if);
   $display("---------------------------");
   $display("STAGE ID : PC=%0h INSTR=%0h OPCODE=%0b", core.pc_id, core.instr_id, core.opcode_id);
   $display("---------------------------");
-  $display("STAGE EX : PC=%0h INSTR=%0h OPCODE=%0b", core.pc_ex, core.instr_id, core.opcode_ex);
+  $display("STAGE EX : PC=%0h ALU_IN_A=%0d ALU_IN_B=%0d, IMM=%0d, RS2_SEL=%0d", core.pc_ex,core.alu_operand_a_ex, core.alu_operand_b_ex, core.imm_ex,core.rs2_sel_ex);
   $display("---------------------------");
+  $display("STAGE WB : PC=%0h", core.pc_wb);
+  $display("---------------------------");
+  i=i+1;
 end
 
 endmodule

@@ -3,7 +3,7 @@
 `include "headers/wb_sel.svh"
 module control_unit (
     input  logic [31:0] instr,
-    // output logic [3:0]  alu_sel, // select op
+    //output logic [3:0]  alu_op, // select op
     output logic        mem_r,  // read or write from dmem
     output logic        mem_w,  // write to dmem
     output logic        rs2_sel, // imm or reg for alu
@@ -51,6 +51,7 @@ module control_unit (
 
             rs1_sel = 1; // choose rs a
             rs2_sel = 1; // choose imm (lw = addi register,0,z so yeah)
+            
 
         end
         `OPCODE_STORE : begin
@@ -78,6 +79,20 @@ module control_unit (
             rs2_sel = 0; // choose rs b
 
         end
+
+        `OPCODE_ITYPE : begin
+            mem_r = 0;
+            mem_w = 0;
+
+            reg_write = 1; // store in register
+
+            wb_sel = `WB_ALU; // alu
+
+            rs1_sel = 0; // choose rs a
+            rs2_sel = 1; // choose IMM
+
+        end
+
         `OPCODE_JAL : begin
             mem_r = 0;
             mem_w = 0;
