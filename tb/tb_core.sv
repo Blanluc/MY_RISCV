@@ -38,6 +38,7 @@ always @(posedge clk) begin
   $display("CYCLE=%d",i);
   $display("---------------------------");
   $display("STAGE IF : PC=%0h INSTR=%0h", core.pc_if, core.instr_if);
+  $display("REG_FILE : x0=%0d x1=%0d x2=%0d x3=%0d x4=%0d", core.regfile.regs[5'b00000], core.regfile.regs[5'b00001], core.regfile.regs[5'b00010], core.regfile.regs[5'b00011], core.regfile.regs[5'b00100]);
   $display("---------------------------");
   $display("STAGE ID : PC=%0h INSTR=%0h OPCODE=%0b", core.pc_id, core.instr_id, core.opcode_id);
   $display("---------------------------");

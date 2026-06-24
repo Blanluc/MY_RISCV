@@ -10,8 +10,8 @@ module dmem #(
     input  logic        clk,
     input  logic        write_en,
     input  logic [31:0] addr, // PC feeds straight in
-    input  logic [31:0] w_data,
-    output logic [31:0] r_data
+    input  logic [31:0] w_data, // write
+    output logic [31:0] r_data // read
 );
     logic [31:0] mem [0:DEPTH-1];
 

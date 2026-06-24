@@ -10,9 +10,6 @@ module core
 
 // PIPELINE
 
-
-
-
 // IF STAGE :
 
 logic [31:0] pc_if;
@@ -61,6 +58,8 @@ logic        rs2_sel_id;
 logic        rs1_sel_id;
 logic        reg_write_id;
 logic [2:0]  wb_sel_id;
+logic [31:0] rs1_data_id;
+logic [31:0] rs2_data_id;
 
 decoder decoder (	
             .instr  (instr_id),
@@ -82,14 +81,25 @@ control_unit control_unit (
             .reg_write (reg_write_id),
             .wb_sel (wb_sel_id)
 			);
+
+regfile regfile (	
+            .clk  (clk),
+            .w_addr (rd_wb), // from wb stage
+            .w_data (alu_result_wb), // from wb stage // still have to mux the wb
+            .w_en (reg_write_wb), // from wb stage
+            .r_addr1 (rs1_id),
+            .r_data1 (rs1_data_id),
+            .r_addr2 (rs2_id),
+            .r_data2 (rs2_data_id)
+			);
     
 
 logic [6:0] opcode_ex;
 logic [4:0]  rd_ex;
 logic [2:0]  funct3_ex;
 logic [6:0]  funct7_ex;
-logic [4:0]  rs1_ex;
-logic [4:0]  rs2_ex;
+//logic [4:0]  rs1_ex;
+//logic [4:0]  rs2_ex;
 logic [31:0] imm_ex;
 logic [31:0] pc_ex;
 logic        mem_r_ex;
@@ -99,6 +109,8 @@ logic        rs1_sel_ex;
 logic        reg_write_ex;
 logic [2:0]  wb_sel_ex;
 logic [3:0] alu_op_ex; // alu sel
+logic [31:0] rs1_data_ex;
+logic [31:0] rs2_data_ex;
 
 id_ex_reg id_ex_reg(
     .clk   (clk),
@@ -110,8 +122,8 @@ id_ex_reg id_ex_reg(
     .rd_id (rd_id),
     .funct3_id (funct3_id),
     .funct7_id (funct7_id),
-    .rs1_id (rs1_id),
-    .rs2_id (rs2_id),
+    .rs1_data_id (rs1_data_id),
+    .rs2_data_id (rs2_data_id),
     .imm_id (imm_id),
     .wb_sel_id(wb_sel_id),
     .reg_write_id(reg_write_id),
@@ -126,8 +138,8 @@ id_ex_reg id_ex_reg(
     .rd_ex (rd_ex),
     .funct3_ex (funct3_ex),
     .funct7_ex (funct7_ex),
-    .rs1_ex (rs1_ex),
-    .rs2_ex (rs2_ex),
+    .rs1_data_ex (rs1_data_ex),
+    .rs2_data_ex (rs2_data_ex),
     .imm_ex (imm_ex),
     .wb_sel_ex(wb_sel_ex),
     .reg_write_ex(reg_write_ex),
@@ -140,8 +152,7 @@ id_ex_reg id_ex_reg(
 // EX STAGE
 
 logic [31:0] alu_result_ex; // alu output
-logic [31:0] src1_data_ex;
-logic [31:0] src2_data_ex;
+
 logic [31:0] alu_operand_a_ex;
 logic [31:0] alu_operand_b_ex;
 
@@ -155,33 +166,17 @@ logic [2:0]  wb_sel_wb;
 logic [31:0] alu_result_wb; // alu output
 
 
-
-
-// Todo : operand selecion
-// there will be more options once wb is implemented
-
-regfile regfile (	
-            .clk  (clk),
-            .w_addr (0),
-            .w_data (0),
-            .w_en (0),
-            .r_addr1 (rs1_ex),
-            .r_data1 (src1_data_ex),
-            .r_addr2 (rs2_ex),
-            .r_data2 (src2_data_ex)
-			);
-
 // lets start with mux for src b selecting btwn b or imm
 always_comb begin
 // ALU SOURCE B MUX
 case (rs2_sel_ex)
     //1'b0 : alu_operand_b_ex = rs2_ex;
     1'b1 : alu_operand_b_ex = imm_ex;
-    default : alu_operand_b_ex = src2_data_ex;
+    default : alu_operand_b_ex = rs2_data_ex;
 endcase
 
 //for now we leave this like this
-alu_operand_a_ex = src1_data_ex;
+alu_operand_a_ex = rs1_data_ex;
 end
 
 alu_controller alu_controller(
@@ -219,6 +214,9 @@ ex_wb_reg ex_wb_reg(
     .alu_result_ex (alu_result_ex)
 
 );
+
+// write back stage
+// for now we work only with regs. Then we will implement memory
 
 
 

@@ -11,8 +11,8 @@ module id_ex_reg (
     input logic [4:0]  rd_id,
     input logic [2:0]  funct3_id,
     input logic [6:0]  funct7_id,
-    input logic [4:0]  rs1_id,
-    input logic [4:0]  rs2_id,
+    input logic [31:0]  rs1_data_id,
+    input logic [31:0]  rs2_data_id,
     input logic [31:0] imm_id,
     input logic        mem_r_id, 
     input logic        mem_w_id, 
@@ -25,8 +25,8 @@ module id_ex_reg (
     output logic [4:0]  rd_ex,
     output logic [2:0]  funct3_ex,
     output logic [6:0]  funct7_ex,
-    output logic [4:0]  rs1_ex,
-    output logic [4:0]  rs2_ex,
+    output logic [31:0]  rs1_data_ex,
+    output logic [31:0]  rs2_data_ex,
     output logic [31:0] imm_ex,
     output logic [31:0] pc_ex,
     output logic        mem_r_ex, 
@@ -44,8 +44,8 @@ module id_ex_reg (
         rd_ex <= '0;
         funct3_ex <= '0;
         funct7_ex <= '0;
-        rs1_ex <= '0;
-        rs2_ex <= '0;
+        rs1_data_ex <= '0;
+        rs2_data_ex <= '0;
         imm_ex <= '0;
         mem_r_ex <= '0;
         mem_w_ex <= '0;
@@ -60,8 +60,8 @@ module id_ex_reg (
         rd_ex <= rd_id;
         funct3_ex <= funct3_id;
         funct7_ex <= funct7_id;
-        rs1_ex <= rs1_id;
-        rs2_ex <= rs2_id;
+        rs1_data_ex <= rs1_data_id;
+        rs2_data_ex <= rs2_data_id;
         imm_ex <= imm_id;
         mem_r_ex <= mem_r_id;
         mem_w_ex <= mem_w_id;
