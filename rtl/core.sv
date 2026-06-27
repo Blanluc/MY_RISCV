@@ -1,5 +1,5 @@
 // Top level module of the core
- 
+ `include "headers/wb_sel.svh"
 module core
 (
   // Clock and Reset
@@ -86,6 +86,8 @@ decoder decoder (
             .imm (imm_id)
 			);
 
+// add 0 to to the sels here for like load or stuff
+
 control_unit control_unit (	
             .instr  (instr_id),
             //.mem_r (mem_r_id),
@@ -101,18 +103,18 @@ control_unit control_unit (
 hazard_unit hazard_unit (	
             .clk  (clk),
             .rst_n (rst_n),
-            .reg_addr  (rd_id), // reg that changes
+            .rd  (rd_id), // reg that changes
             //.stall_d (stall),
             .src1 (rs1_id),
             .src2 (rs2_id),
-            .stall_q (stall),
+            .stall (stall),
             .reg_write (reg_write_id)
 			);
 
 regfile regfile (	
             .clk  (clk),
             .w_addr (rd_wb), // from wb stage
-            .w_data (alu_result_wb), // from wb stage // still have to mux the wb
+            .w_data (return_val), // from wb stage // still have to mux the wb
             .w_en (reg_write_wb), // from wb stage
             .r_addr1 (rs1_id),
             .r_data1 (rs1_data_id),
@@ -224,11 +226,14 @@ alu alu(
 
 
 logic [31:0] pc_mem;
+logic [31:0] rs2_data_mem;
 logic [4:0] rd_mem;
 logic mem_w_mem;
 logic [2:0] wb_sel_mem;
 logic reg_write_mem;
 logic [31:0] alu_result_mem; // alu output
+logic [6:0] opcode_mem; 
+logic [2:0]  funct3_mem;
 
 
 
@@ -240,18 +245,24 @@ ex_mem_reg ex_mem_reg(
 
     .pc_mem (pc_mem),
     .rd_mem (rd_mem),
+    .opcode_mem (opcode_mem),
+    .funct3_mem (funct3_mem),
     //.mem_r_mem (mem_r_mem),
     .mem_w_mem (mem_w_mem),
     .wb_sel_mem (wb_sel_mem),
     .reg_write_mem (reg_write_mem),
     .alu_result_mem (alu_result_mem),
+    .rs2_data_ex (rs2_data_ex),
     
     .pc_ex (pc_ex),
     .rd_ex (rd_ex),
     //.mem_r_ex (mem_r_ex),
+    .opcode_ex (opcode_ex),
+    .funct3_ex (funct3_ex),
     .mem_w_ex (mem_w_ex),
     .wb_sel_ex (wb_sel_ex),
     .reg_write_ex (reg_write_ex),
+    .rs2_data_mem (rs2_data_mem),
     .alu_result_ex (alu_result_ex)
 
 );
@@ -259,12 +270,40 @@ ex_mem_reg ex_mem_reg(
 // MEM STAGE
 logic [31:0] r_data_mem;
 logic [31:0] w_data_mem;
+logic [31:0] bit_mask_mem;
+logic is_unsigned;
+logic [31:0] r_data_wb;
+
+// make this take
+
+// result
+
+mem_controller mem_controller (
+        //.write_en(mem_w_mem),
+        //.alu_result(alu_result_mem),
+        .funct3(funct3_mem),
+        .bit_mask(bit_mask_mem),
+        .is_unsigned(is_unsigned),
+        .opcode(opcode_mem)
+        //.r_data(r_data_mem)
+        //.instr(instr_if) // instr is already wired through the imem, dont need to do anything here
+);
+
+// need a mem mux
+// always_comb begin
+// case (opcode_mem)
+//     `OPCODE_STORE : return_val = r_data_wb;
+//     default : return_val = alu_result_wb;
+
+// endcase
+// end
 
 dmem dmem (
         .clk  (clk),
-        .addr (alu_result_ex),
+        .addr (alu_result_mem), //alu reslut mem =
+        .bit_mask(bit_mask_mem),
         .write_en(mem_w_mem),
-        .w_data(w_data_mem),
+        .w_data(rs2_data_mem), // store is always with rs2
         .r_data(r_data_mem)
         //.instr(instr_if) // instr is already wired through the imem, dont need to do anything here
 );
@@ -283,16 +322,36 @@ mem_wb_reg mem_wb_reg(
     .wb_sel_wb (wb_sel_wb),
     .reg_write_wb (reg_write_wb),
     .alu_result_wb (alu_result_wb),
+    .r_data_wb(r_data_wb),
     
     .pc_mem (pc_mem),
     .rd_mem (rd_mem),
+    //.r_data(r_data_mem)
     //.mem_r_mem (mem_r_mem),
     .mem_w_mem (mem_w_mem),
     .wb_sel_mem (wb_sel_mem),
     .reg_write_mem (reg_write_mem),
+    .r_data_mem(r_data_mem),
     .alu_result_mem (alu_result_mem)
 
 );
+
+logic [31:0] return_val;
+always_comb begin
+case (wb_sel_wb)
+    `WB_DMEM : return_val = r_data_wb;
+    default : return_val = alu_result_wb;
+
+endcase
+end
+
+// `define WB_ND     3'b000
+// `define WB_DMEM   3'b001
+// `define WB_ALU    3'b010
+// `define WB_IMM	  3'b011
+// `define WB_PC_ADD 3'b100
+// `define WB_CSR_RD 3'b101 // not used for now
+// WB MUX
 
 // WB STAGE
 

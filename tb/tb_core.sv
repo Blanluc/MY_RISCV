@@ -33,6 +33,9 @@ initial begin
     //#10 core.stall=1;
     //#10 core.stall=0;
   #220;
+    for (int x = 0; x < 16; x++) begin
+    $display("dmem[%0d] = %h", x, core.dmem.mem[x]);
+end
     $finish;
 end
 
@@ -55,6 +58,10 @@ always @(posedge clk) begin
   $display("---------------------------");
   $display("STAGE WB : PC=%0h", core.pc_wb);
   $display("---------------------------");
+  $display("DMEM: we=%b addr=%0d wdata=%h", 
+    core.dmem.write_en,
+    core.dmem.addr,
+    core.dmem.w_data);
   i=i+1;
   
 end

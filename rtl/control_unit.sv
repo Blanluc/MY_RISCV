@@ -50,7 +50,7 @@ module control_unit (
             wb_sel = `WB_DMEM; // value from mem
 
             rs1_sel = 1; // choose rs a
-            rs2_sel = 1; // choose imm (lw = addi register,0,z so yeah)
+            rs2_sel = 1; // choose imm (lw = addi register,0,z so yeah) // can be 0
             
 
         end
@@ -59,7 +59,7 @@ module control_unit (
             //mem_r = 0;
             mem_w = 1;
 
-            reg_write = 1; // load to a register
+            reg_write = 0; // load to a register
 
             wb_sel = `WB_ND; // not needed
 

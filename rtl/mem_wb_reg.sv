@@ -15,6 +15,7 @@ module mem_wb_reg (
     input logic        reg_write_mem, 
     input logic [2:0]  wb_sel_mem,
     input logic [31:0] alu_result_mem,
+    input logic [31:0] r_data_mem,
 
     //output logic [6:0] opcode_wb,
     output logic [4:0]  rd_wb,
@@ -23,6 +24,7 @@ module mem_wb_reg (
     output logic        mem_w_wb, 
     output logic        reg_write_wb, 
     output logic [2:0]  wb_sel_wb,
+    output logic [31:0] r_data_wb,
     output logic [31:0] alu_result_wb
 );
 
@@ -34,6 +36,7 @@ module mem_wb_reg (
         mem_w_wb <= '0;
         reg_write_wb <= '0;
         wb_sel_wb <= '0;
+        r_data_wb <= '0;
         alu_result_wb <= '0;
     end 
     // else if (stall) begin
@@ -52,6 +55,7 @@ module mem_wb_reg (
         mem_w_wb <= mem_w_mem;
         reg_write_wb <= reg_write_mem;
         wb_sel_wb <= wb_sel_mem;
+        r_data_wb <= r_data_mem;
         alu_result_wb <= alu_result_mem;
     end
 
