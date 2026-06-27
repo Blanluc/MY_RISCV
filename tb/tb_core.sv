@@ -22,23 +22,32 @@ task reset_release();
       #10 rst_n = 1;
 endtask
 
+
 initial begin
+  $dumpfile("waves.vcd");
+    $dumpvars(0, tb_core);  // 0 = dump all levels
 	rst_n = 0;
     clk = 0;
     //$monitor("INSTR=%b", instr);
     reset_release();
-  #100;
+    //#10 core.stall=1;
+    //#10 core.stall=0;
+  #220;
     $finish;
 end
 
 int i=0;
 always #5 clk = ~clk;
 
+int y=0;
+
+assign y=core.regfile.regs[10];
+
 always @(posedge clk) begin
   $display("CYCLE=%d",i);
   $display("---------------------------");
-  $display("STAGE IF : PC=%0h INSTR=%0h", core.pc_if, core.instr_if);
-  $display("REG_FILE : x0=%0d x1=%0d x2=%0d x3=%0d x4=%0d", core.regfile.regs[5'b00000], core.regfile.regs[5'b00001], core.regfile.regs[5'b00010], core.regfile.regs[5'b00011], core.regfile.regs[5'b00100]);
+  $display("STAGE IF : PC=%0h INSTR=%0h IS_STALLING=%0d", core.pc_if, core.instr_if,core.stall);
+  $display("REG_FILE : x10=%0d x12=%0d x14=%0d x16=%0d", core.regfile.regs[5'b01010], core.regfile.regs[5'b01100], core.regfile.regs[5'b01110], core.regfile.regs[5'b10000]);
   $display("---------------------------");
   $display("STAGE ID : PC=%0h INSTR=%0h OPCODE=%0b", core.pc_id, core.instr_id, core.opcode_id);
   $display("---------------------------");
@@ -47,6 +56,7 @@ always @(posedge clk) begin
   $display("STAGE WB : PC=%0h", core.pc_wb);
   $display("---------------------------");
   i=i+1;
+  
 end
 
 endmodule

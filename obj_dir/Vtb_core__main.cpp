@@ -10,6 +10,7 @@ int main(int argc, char** argv, char**) {
     // Setup context, defaults, and parse command line
     Verilated::debug(0);
     const std::unique_ptr<VerilatedContext> contextp{new VerilatedContext};
+    contextp->traceEverOn(true);
     contextp->threads(1);
     contextp->commandArgs(argc, argv);
 

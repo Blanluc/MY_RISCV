@@ -5,12 +5,15 @@ module imem #(
     parameter int unsigned DEPTH = 1024  // 4 kb
 )(
     input  logic        clk,
+    input  logic        en, // so it doesnt fetch twice at beninging
     input  logic [31:0] addr, // PC feeds straight in
+    //input  logic [31:0] addr_prev, // PC feeds straight in
+    input  logic        stall,
     output logic [31:0] instr // we return the instr
 );
     logic [31:0] mem [0:DEPTH-1];
 
-    initial $readmemh("program.hex", mem); // read hex data from txt file and load it into mem arr
+    initial $readmemh("program2.hex", mem); // read hex data from txt file and load it into mem arr
 
     // 1 byte = 8 bits
     // 1 word = 32 bits
@@ -32,6 +35,10 @@ module imem #(
 
     // word aligned read, drop bottom 2 bits
     always_ff @(posedge clk)
-        instr <= mem[addr[11:2]];
+        if (en && !stall) begin
+         //if (stall)
+            instr <= mem[addr[11:2]];
+        //else instr <= mem[addr[11:2]];
+        end
 
 endmodule

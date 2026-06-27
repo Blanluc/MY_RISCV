@@ -1,8 +1,10 @@
-// data memory
+// data memory : Byte adressable
 // will be initialized with 0
 
 // TODO : lb, lh, sb, sh will have to expand.
 // for now just try get basics working
+
+// How to interact with dmem?
 
 module dmem #(
     parameter int unsigned DEPTH = 1024  // 4 kb
@@ -36,7 +38,7 @@ module dmem #(
     // 0x00000008 = 0000 0000 0000 0000 0000 0000 0000 1000
     // (...)
     // So if we dropt the 2 bottom bits :
-    // 0x00000004 = 0000 0000 0000 0000 0000 0000 0000 01
+    // 0x00000004 = 0000 0000 0000 0000 0000 0000 0000 01 so each slot is 1 byte
     // 0x00000008 = 0000 0000 0000 0000 0000 0000 0000 10
 
 

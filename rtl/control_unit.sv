@@ -4,7 +4,7 @@
 module control_unit (
     input  logic [31:0] instr,
     //output logic [3:0]  alu_op, // select op
-    output logic        mem_r,  // read or write from dmem
+    //output logic        mem_r,  // read from dmem // I dont think I need this
     output logic        mem_w,  // write to dmem
     output logic        rs2_sel, // imm or reg for alu
     output logic        rs1_sel, // imm or reg for alu
@@ -42,7 +42,7 @@ module control_unit (
 
         // Load <=> read from d mem
         `OPCODE_LOAD : begin
-            mem_r = 1;
+            //mem_r = 1;
             mem_w = 0;
 
             reg_write = 1; // load to a register
@@ -56,7 +56,7 @@ module control_unit (
         end
         `OPCODE_STORE : begin
 
-            mem_r = 0;
+            //mem_r = 0;
             mem_w = 1;
 
             reg_write = 1; // load to a register
@@ -68,7 +68,7 @@ module control_unit (
 
         end
         `OPCODE_RTYPE : begin
-            mem_r = 0;
+            //mem_r = 0;
             mem_w = 0;
 
             reg_write = 1; // store in register
@@ -81,7 +81,7 @@ module control_unit (
         end
 
         `OPCODE_ITYPE : begin
-            mem_r = 0;
+            //mem_r = 0;
             mem_w = 0;
 
             reg_write = 1; // store in register
@@ -94,7 +94,7 @@ module control_unit (
         end
 
         `OPCODE_JAL : begin
-            mem_r = 0;
+            //mem_r = 0;
             mem_w = 0;
 
             reg_write = 1; // store in register
@@ -106,7 +106,7 @@ module control_unit (
 
         end
         `OPCODE_JALR : begin
-            mem_r = 0;
+            //mem_r = 0;
             mem_w = 0;
 
             reg_write = 1; // store in register
@@ -118,7 +118,7 @@ module control_unit (
     
         end
         `OPCODE_BRANCH : begin
-            mem_r = 0;
+            //mem_r = 0;
             mem_w = 0;
 
             reg_write = 1; // store in register
@@ -131,7 +131,7 @@ module control_unit (
         end
         
         default                 : begin
-            mem_r = 0;
+            //mem_r = 0;
             mem_w = 0;
 
             reg_write = 0;

@@ -13,27 +13,41 @@ module core
 // IF STAGE :
 
 logic [31:0] pc_if;
+//logic [31:0] pc_prev_if;
 logic [31:0] instr_if;
+logic        imem_en;
+logic stall;
 
 pc pc (
         .clk  (clk),
         .rst_n (rst_n),
-        .pc_d(pc_if+4),
-        .pc_q(pc_if)
+        .pc_d(pc_if+(4*!stall)), // TODO : maybe do proper pc plus 4
+        .pc_q(pc_if),
+        //.pc_prev_q(pc_prev_if),
+        .imem_en(imem_en),
+        .stall(stall) 
     );
 
-imem u_imem (
+imem imem (
         .clk  (clk),
         .addr (pc_if),
+        //.addr_prev (pc_prev_if),
+        .en(imem_en),
+        .stall(stall),
         .instr(instr_if) // instr is already wired through the imem, dont need to do anything here
     );
 
 logic [31:0] pc_id;
 logic [31:0] instr_id;
 
+
+
+
 if_id_reg if_id_reg(
     .clk   (clk),
     .rst_n (rst_n),
+
+    .stall (stall),
 
     .pc_if (pc_if),
     .instr_if (instr_if),
@@ -52,7 +66,7 @@ logic [6:0]  funct7_id;
 logic [4:0]  rs1_id;
 logic [4:0]  rs2_id;
 logic [31:0] imm_id;
-logic        mem_r_id;
+//logic        mem_r_id;
 logic        mem_w_id;
 logic        rs2_sel_id;
 logic        rs1_sel_id;
@@ -74,12 +88,25 @@ decoder decoder (
 
 control_unit control_unit (	
             .instr  (instr_id),
-            .mem_r (mem_r_id),
+            //.mem_r (mem_r_id),
             .mem_w (mem_w_id),
             .rs1_sel (rs1_sel_id),
             .rs2_sel (rs2_sel_id),
             .reg_write (reg_write_id),
             .wb_sel (wb_sel_id)
+			);
+
+
+
+hazard_unit hazard_unit (	
+            .clk  (clk),
+            .rst_n (rst_n),
+            .reg_addr  (rd_id), // reg that changes
+            //.stall_d (stall),
+            .src1 (rs1_id),
+            .src2 (rs2_id),
+            .stall_q (stall),
+            .reg_write (reg_write_id)
 			);
 
 regfile regfile (	
@@ -98,11 +125,9 @@ logic [6:0] opcode_ex;
 logic [4:0]  rd_ex;
 logic [2:0]  funct3_ex;
 logic [6:0]  funct7_ex;
-//logic [4:0]  rs1_ex;
-//logic [4:0]  rs2_ex;
 logic [31:0] imm_ex;
 logic [31:0] pc_ex;
-logic        mem_r_ex;
+//logic        mem_r_ex;
 logic        mem_w_ex;
 logic        rs2_sel_ex;
 logic        rs1_sel_ex;
@@ -112,9 +137,13 @@ logic [3:0] alu_op_ex; // alu sel
 logic [31:0] rs1_data_ex;
 logic [31:0] rs2_data_ex;
 
+
+
 id_ex_reg id_ex_reg(
     .clk   (clk),
     .rst_n (rst_n),
+
+    .stall (stall),
 
     // id
     .pc_id (pc_id),
@@ -129,7 +158,7 @@ id_ex_reg id_ex_reg(
     .reg_write_id(reg_write_id),
     .rs1_sel_id(rs1_sel_id),
     .rs2_sel_id(rs2_sel_id),
-    .mem_r_id(mem_r_id),
+    //.mem_r_id(mem_r_id),
     .mem_w_id(mem_w_id),
 
     // ex
@@ -145,7 +174,7 @@ id_ex_reg id_ex_reg(
     .reg_write_ex(reg_write_ex),
     .rs1_sel_ex(rs1_sel_ex),
     .rs2_sel_ex(rs2_sel_ex),
-    .mem_r_ex(mem_r_ex),
+    //.mem_r_ex(mem_r_ex),
     .mem_w_ex(mem_w_ex)
 );
 
@@ -159,7 +188,7 @@ logic [31:0] alu_operand_b_ex;
 
 logic [31:0] pc_wb;
 logic [4:0]  rd_wb;
-logic        mem_r_wb;
+//logic        mem_r_wb;
 logic        mem_w_wb;
 logic        reg_write_wb;
 logic [2:0]  wb_sel_wb;
@@ -193,27 +222,79 @@ alu alu(
     .result (alu_result_ex)
 );
 
-ex_wb_reg ex_wb_reg(
+
+logic [31:0] pc_mem;
+logic [4:0] rd_mem;
+logic mem_w_mem;
+logic [2:0] wb_sel_mem;
+logic reg_write_mem;
+logic [31:0] alu_result_mem; // alu output
+
+
+
+ex_mem_reg ex_mem_reg(
     .clk   (clk),
     .rst_n (rst_n),
 
-    .pc_wb (pc_wb),
-    .rd_wb (rd_wb),
-    .mem_r_wb (mem_r_wb),
-    .mem_w_wb (mem_w_wb),
-    .wb_sel_wb (wb_sel_wb),
-    .reg_write_wb (reg_write_wb),
-    .alu_result_wb (alu_result_wb),
+    .stall(stall),
+
+    .pc_mem (pc_mem),
+    .rd_mem (rd_mem),
+    //.mem_r_mem (mem_r_mem),
+    .mem_w_mem (mem_w_mem),
+    .wb_sel_mem (wb_sel_mem),
+    .reg_write_mem (reg_write_mem),
+    .alu_result_mem (alu_result_mem),
     
     .pc_ex (pc_ex),
     .rd_ex (rd_ex),
-    .mem_r_ex (mem_r_ex),
+    //.mem_r_ex (mem_r_ex),
     .mem_w_ex (mem_w_ex),
     .wb_sel_ex (wb_sel_ex),
     .reg_write_ex (reg_write_ex),
     .alu_result_ex (alu_result_ex)
 
 );
+
+// MEM STAGE
+logic [31:0] r_data_mem;
+logic [31:0] w_data_mem;
+
+dmem dmem (
+        .clk  (clk),
+        .addr (alu_result_ex),
+        .write_en(mem_w_mem),
+        .w_data(w_data_mem),
+        .r_data(r_data_mem)
+        //.instr(instr_if) // instr is already wired through the imem, dont need to do anything here
+);
+
+
+mem_wb_reg mem_wb_reg(
+    .clk   (clk),
+    .rst_n (rst_n),
+
+    .stall (stall),
+
+    .pc_wb (pc_wb),
+    .rd_wb (rd_wb),
+    //.mem_r_wb (mem_r_wb),
+    .mem_w_wb (mem_w_wb),
+    .wb_sel_wb (wb_sel_wb),
+    .reg_write_wb (reg_write_wb),
+    .alu_result_wb (alu_result_wb),
+    
+    .pc_mem (pc_mem),
+    .rd_mem (rd_mem),
+    //.mem_r_mem (mem_r_mem),
+    .mem_w_mem (mem_w_mem),
+    .wb_sel_mem (wb_sel_mem),
+    .reg_write_mem (reg_write_mem),
+    .alu_result_mem (alu_result_mem)
+
+);
+
+// WB STAGE
 
 // write back stage
 // for now we work only with regs. Then we will implement memory
