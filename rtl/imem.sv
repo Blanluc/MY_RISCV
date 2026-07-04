@@ -13,7 +13,7 @@ module imem #(
 );
     logic [31:0] mem [0:DEPTH-1];
 
-    initial $readmemh("program2.hex", mem); // read hex data from txt file and load it into mem arr
+    initial $readmemh("branch_test.hex", mem); // read hex data from txt file and load it into mem arr
 
     // 1 byte = 8 bits
     // 1 word = 32 bits

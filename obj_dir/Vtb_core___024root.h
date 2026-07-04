@@ -22,6 +22,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_core___024root final {
         CData/*0:0*/ tb_core__DOT__core__DOT__imem_en;
         CData/*0:0*/ tb_core__DOT__core__DOT__stall;
         CData/*0:0*/ tb_core__DOT__core__DOT__flush_id;
+        CData/*0:0*/ tb_core__DOT__core__DOT__flush_ex;
         CData/*0:0*/ tb_core__DOT__core__DOT__mem_w_id;
         CData/*0:0*/ tb_core__DOT__core__DOT__rs2_sel_id;
         CData/*0:0*/ tb_core__DOT__core__DOT__rs1_sel_id;
@@ -80,9 +81,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_core___024root final {
         IData/*31:0*/ tb_core__DOT__y;
         IData/*31:0*/ tb_core__DOT__core__DOT__pc_if;
         IData/*31:0*/ tb_core__DOT__core__DOT__pc_next;
-        IData/*31:0*/ tb_core__DOT__core__DOT__instr_if;
     };
     struct {
+        IData/*31:0*/ tb_core__DOT__core__DOT__instr_if;
         IData/*31:0*/ tb_core__DOT__core__DOT__pc_id;
         IData/*31:0*/ tb_core__DOT__core__DOT__instr_id;
         IData/*31:0*/ tb_core__DOT__core__DOT__pc_plus_4_id;
@@ -113,10 +114,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_core___024root final {
         IData/*31:0*/ __Vdly__tb_core__DOT__core__DOT__pc_if;
         IData/*31:0*/ __Vdly__tb_core__DOT__core__DOT__instr_id;
         IData/*31:0*/ __Vdly__tb_core__DOT__core__DOT__pc_id;
-        IData/*31:0*/ __Vdly__tb_core__DOT__core__DOT__rs2_data_ex;
         IData/*31:0*/ __Vdly__tb_core__DOT__core__DOT__pc_ex;
-        IData/*31:0*/ __Vdly__tb_core__DOT__core__DOT__imm_ex;
         IData/*31:0*/ __Vdly__tb_core__DOT__core__DOT__pc_plus_4_ex;
+        IData/*31:0*/ __Vdly__tb_core__DOT__core__DOT__rs2_data_ex;
+        IData/*31:0*/ __Vdly__tb_core__DOT__core__DOT__imm_ex;
         IData/*31:0*/ __VdlyVal__tb_core__DOT__core__DOT__dmem__DOT__mem__v0;
         IData/*31:0*/ __VactIterCount;
         IData/*31:0*/ __VinactIterCount;

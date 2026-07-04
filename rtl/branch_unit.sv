@@ -33,7 +33,7 @@ logic  alu_zero_bge;
 logic  alu_zero_bgeu;
 
 assign alu_zero_bne=alu_zero_in;
-assign alu_zero_beq=~alu_zero_in;
+assign alu_zero_beq=alu_zero_in;
 assign alu_zero_blt=alu_zero_in;
 assign alu_zero_bge=~alu_zero_in;
 assign alu_zero_bltu=alu_zero_in;

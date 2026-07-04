@@ -31,14 +31,19 @@ logic stall;
 pc_controller pc_controller (
         .pc(pc_if),
         .pc_plus_4(pc_plus_4_if),
-        .opcode(opcode_id),
+        .opcode_id(opcode_id),
+        .opcode_ex(opcode_ex),
         .alu_zero(alu_zero_out_ex),
         .pc_jump(pc_id),
-        .imm(imm_id),
+        .pc_branch(pc_ex),
+        .imm_id(imm_id),
+        .imm_ex(imm_ex),
         //.pc_prev_q(pc_prev_if),
         .alu_result(alu_result_ex),
         .stall(stall),
-        .pc_next(pc_next)
+        .pc_next(pc_next),
+        .flush_ex(flush_ex),
+        .flush_id(flush_id)
     );
 
 pc pc (
@@ -67,6 +72,7 @@ imem imem (
 
 logic [31:0] pc_id;
 logic  flush_id;
+logic  flush_ex;
 logic [31:0] instr_id;
 logic [31:0] pc_plus_4_id;
 
@@ -128,7 +134,7 @@ control_unit control_unit (
             .rs1_sel (rs1_sel_id),
             .rs2_sel (rs2_sel_id),
             .reg_write (reg_write_id),
-            .flush(flush_id),
+            //.flush_id(flush_id),
             .wb_sel (wb_sel_id)
 			);
 
@@ -200,6 +206,7 @@ id_ex_reg id_ex_reg(
     .mem_w_id(mem_w_id),
 
     // ex
+    .flush_ex(flush_ex),
     .pc_ex (pc_ex),
     .pc_plus_4_ex(pc_plus_4_ex),
     .opcode_ex (opcode_ex),
@@ -303,6 +310,7 @@ ex_mem_reg ex_mem_reg(
     .rst_n (rst_n),
 
     .stall(stall),
+    
 
     .pc_mem (pc_mem),
     .pc_plus_4_mem(pc_plus_4_mem),

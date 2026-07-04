@@ -25,6 +25,9 @@ module id_ex_reg (
     input logic        reg_write_id, 
     input logic [2:0]  wb_sel_id,
 
+    input  logic        flush_ex,
+
+
     output logic [6:0] opcode_ex,
     output logic [4:0]  rd_ex,
     output logic [2:0]  funct3_ex,
@@ -43,7 +46,7 @@ module id_ex_reg (
 );
 
     always_ff @(posedge clk or negedge rst_n) begin
-    if (!rst_n) begin// rst_n is active low
+    if (!rst_n || flush_ex) begin// rst_n is active low
         pc_ex <= '0;
         pc_plus_4_ex <= '0;
         opcode_ex <= '0;

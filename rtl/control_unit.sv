@@ -6,7 +6,7 @@ module control_unit (
     //output logic [3:0]  alu_op, // select op
     //output logic        mem_r,  // read from dmem // I dont think I need this
     output logic        mem_w,  // write to dmem
-    output logic        flush, // for now just for decode
+    //output logic        //flush_id, 
     output logic        rs2_sel, // imm or reg for alu
     output logic        rs1_sel, // imm or reg for alu
     output logic        reg_write, // reg write
@@ -45,7 +45,7 @@ module control_unit (
         `OPCODE_LOAD : begin
             //mem_r = 1;
             mem_w = 0;
-            flush=0;
+            //flush_id=0;
 
             reg_write = 1; // load to a register
 
@@ -63,7 +63,7 @@ module control_unit (
             mem_w = 1;
 
             reg_write = 0; // load to a registe
-            flush=0;
+            //flush_id=0;
 
             wb_sel = `WB_ND; // not needed
 
@@ -78,7 +78,7 @@ module control_unit (
             reg_write = 1; // store in register
 
             wb_sel = `WB_ALU; // alu
-            flush=0;
+            ////flush_id=0;
 
             rs1_sel = 0; // choose rs a
             rs2_sel = 0; // choose rs b
@@ -90,7 +90,7 @@ module control_unit (
             mem_w = 0;
 
             reg_write = 1; // store in register
-            flush=0;
+            //flush_id=0;
 
             wb_sel = `WB_ALU; // alu
 
@@ -100,12 +100,12 @@ module control_unit (
         end
         // JUMPS
         `OPCODE_JAL : begin
-            $display("JAL! IM GAY");
+            $display("JAL!");
             //mem_r = 0;
             mem_w = 0;
 
             reg_write = 1; // store in register
-            flush=1;
+            //flush_id=1;
 
             wb_sel = `WB_PC_PLUS_4;
 
@@ -118,7 +118,7 @@ module control_unit (
             mem_w = 0;
 
             reg_write = 1; // store in register
-            flush=1;
+            //flush_id=1;
 
             wb_sel = `WB_PC_PLUS_4; 
 
@@ -127,13 +127,14 @@ module control_unit (
     
         end
         `OPCODE_BRANCH : begin
+            $display("BRANCH");
             //mem_r = 0;
             mem_w = 0;
 
             reg_write = 1; // store in register
 
             wb_sel = `WB_ND;
-            flush=0;
+            //flush_id=0;
 
             rs1_sel = 0; // choose reg
             rs2_sel = 0; // choose reg
@@ -145,7 +146,7 @@ module control_unit (
             mem_w = 0;
 
             reg_write = 0;
-            flush=0;
+            //flush_id=0;
 
             wb_sel = `WB_ND; // not needed
 
