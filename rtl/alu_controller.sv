@@ -72,9 +72,9 @@ module alu_controller (
             // I think I can just use slt and sltu
             
             case(funct3)
-            3'b000, 3'b001 : alu_op=`ALU_AND; // branch == & branch !=
-            3'b100, 3'b101 : alu_op=`ALU_SLT; // 
-            3'b110, 3'b111 : alu_op=`ALU_SLTU; // 
+            3'b000, 3'b001 : alu_op=`ALU_SUB; // BEQ/BNE
+            3'b100, 3'b101 : alu_op=`ALU_SLT; // BLT, BGE
+            3'b110, 3'b111 : alu_op=`ALU_SLTU; // BLTU, BGEU
             default : alu_op=`ALU_AND; // TODO : not sure
 
             endcase
@@ -84,7 +84,7 @@ module alu_controller (
 
         
         
-        default : alu_op=`ALU_ADD;
+        default : alu_op=`ALU_ADD; // maybe wrong, I think i need nop
         
 
         

@@ -10,27 +10,32 @@ module mem_wb_reg (
 
     input logic [4:0]  rd_mem,
     input logic [31:0] pc_mem,
+    input logic [31:0] pc_plus_4_mem,
     //input logic        mem_r_mem, 
     input logic        mem_w_mem, 
     input logic        reg_write_mem, 
     input logic [2:0]  wb_sel_mem,
     input logic [31:0] alu_result_mem,
+    input logic alu_zero_mem,
     input logic [31:0] r_data_mem,
 
     //output logic [6:0] opcode_wb,
     output logic [4:0]  rd_wb,
     output logic [31:0] pc_wb,
+    output logic [31:0] pc_plus_4_wb,
     //output logic        mem_r_wb, 
     output logic        mem_w_wb, 
     output logic        reg_write_wb, 
     output logic [2:0]  wb_sel_wb,
     output logic [31:0] r_data_wb,
-    output logic [31:0] alu_result_wb
+    output logic [31:0] alu_result_wb,
+    output logic alu_zero_wb
 );
 
     always_ff @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin// rst_n is active low
         pc_wb <= '0;
+        pc_plus_4_wb <= '0;
         rd_wb <= '0;
         //mem_r_wb <= '0;
         mem_w_wb <= '0;
@@ -38,6 +43,7 @@ module mem_wb_reg (
         wb_sel_wb <= '0;
         r_data_wb <= '0;
         alu_result_wb <= '0;
+        alu_zero_wb <= '0;
     end 
     // else if (stall) begin
     //     pc_wb <= pc_wb;
@@ -50,6 +56,7 @@ module mem_wb_reg (
     // end
     else begin
         pc_wb <= pc_mem;
+        pc_plus_4_wb <= pc_plus_4_mem;
         rd_wb <= rd_mem;
         //mem_r_wb <= mem_r_mem;
         mem_w_wb <= mem_w_mem;
@@ -57,6 +64,7 @@ module mem_wb_reg (
         wb_sel_wb <= wb_sel_mem;
         r_data_wb <= r_data_mem;
         alu_result_wb <= alu_result_mem;
+        alu_zero_wb <= alu_zero_mem;
     end
 
     end

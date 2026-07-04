@@ -49,8 +49,8 @@ assign y=core.regfile.regs[10];
 always @(posedge clk) begin
   $display("CYCLE=%d",i);
   $display("---------------------------");
-  $display("STAGE IF : PC=%0h INSTR=%0h IS_STALLING=%0d", core.pc_if, core.instr_if,core.stall);
-  $display("REG_FILE : x10=%0d x12=%0d x14=%0d x16=%0d", core.regfile.regs[5'b01010], core.regfile.regs[5'b01100], core.regfile.regs[5'b01110], core.regfile.regs[5'b10000]);
+  $display("STAGE IF : PC=%0h INSTR=%0b IS_STALLING=%0d", core.pc_if, core.instr_if ,core.stall);
+  $display("REG_FILE : a0=%0d a1=%0d a2=%0d ", core.regfile.regs[10], core.regfile.regs[11], core.regfile.regs[12]);
   $display("---------------------------");
   $display("STAGE ID : PC=%0h INSTR=%0h OPCODE=%0b", core.pc_id, core.instr_id, core.opcode_id);
   $display("---------------------------");

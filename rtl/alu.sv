@@ -2,9 +2,10 @@
 `include "headers/alu_ops.svh"
 module alu (
     input  logic [3:0]  operator,
-    input  logic [31:0] operand_a,
+    input  logic [31:0] operand_a, // can be PC!
     input  logic [31:0] operand_b,
-    output logic [31:0] result
+    output logic [31:0] result, 
+    output logic alu_zero // branch
 );
 
     //Just do all the ops and mux at end depending on op
@@ -20,6 +21,10 @@ module alu (
     logic [31:0]  srl_output;
     logic [31:0]  slt_output;
     logic [31:0]  sltu_output;
+
+    logic alu_zero_slt;
+    logic alu_zero_sltu;
+    logic alu_zero_and;
 
     // TODO : How to handle NOP?
     
@@ -86,21 +91,56 @@ module alu (
 
         case(operator)
 
-        `ALU_ADD    : result = add_output;
-        `ALU_SUB    : result = sub_output;
+        `ALU_ADD    : begin
+            result = add_output;
+            alu_zero = '0;
+        end
+        `ALU_SUB    : begin
+            result = sub_output;
+            alu_zero = sub_output == '0; // 1 if 0, 0 if not
+        end
 
-        `ALU_XOR        : result = xor_output;
-        `ALU_OR         : result = or_output;
-        `ALU_AND        : result = and_output;
 
-        `ALU_SRA        : result = sra_output;
-        `ALU_SLL        : result = sll_output;
-        `ALU_SRL        : result = srl_output;
+        `ALU_XOR        : begin
+            result = xor_output;
+            alu_zero = '0;
+        end
+        `ALU_OR         : begin
+            result = or_output;
+            alu_zero = '0;
+        end
+        `ALU_AND        : begin
+            result = and_output;
+            alu_zero = '0;
+        end
 
-        `ALU_SLT        : result = slt_output;
-        `ALU_SLTU       : result = sltu_output;
 
-        default    : result = add_output;
+        `ALU_SRA        : begin
+            result = sra_output;
+            alu_zero = '0;
+        end
+        `ALU_SLL        : begin
+            result = sll_output;
+            alu_zero = '0;
+        end
+        `ALU_SRL        : begin
+            result = srl_output;
+            alu_zero = '0;
+        end
+
+        `ALU_SLT        : begin
+            result = slt_output;
+            alu_zero = slt_output[0]; // BLT, BGE
+        end
+        `ALU_SLTU       : begin
+            result = sltu_output;
+            alu_zero = slt_output[0]; // BLTU, BGEU
+        end
+
+        default    : begin
+            result = add_output;
+            alu_zero = '0;
+        end
         endcase
     
         

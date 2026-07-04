@@ -10,7 +10,7 @@
 `define OPCODE_STORE 		7'b0100011
 `define OPCODE_ITYPE 		7'b0010011
 `define OPCODE_RTYPE 		7'b0110011
-`define OPCODE_FENCE 		7'b0001111 // guarantee ordering btwn mem ops from diff threads
-`define OPCODE_ENVIRONMENT 	7'b1110011 // ECALL, EBREAK ...
+`define OPCODE_MISC_MEM     7'b0001111 // guarantee ordering btwn mem ops from diff threads
+`define OPCODE_SYSTEM 	    7'b1110011 // ECALL, EBREAK ...
 
 `endif // OPCODES_SVH

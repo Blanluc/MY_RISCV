@@ -9,6 +9,7 @@ module id_ex_reg (
     input  logic        stall, // stall
 
     input logic [31:0] pc_id,
+    input logic [31:0] pc_plus_4_id,
     //input logic [31:0] instr_id, // i guess we only need it until here
     input logic [6:0] opcode_id,
     input logic [4:0]  rd_id,
@@ -32,6 +33,7 @@ module id_ex_reg (
     output logic [31:0]  rs2_data_ex,
     output logic [31:0] imm_ex,
     output logic [31:0] pc_ex,
+    output logic [31:0] pc_plus_4_ex,
     //output logic        mem_r_ex, 
     output logic        mem_w_ex, 
     output logic        rs2_sel_ex,
@@ -43,6 +45,7 @@ module id_ex_reg (
     always_ff @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin// rst_n is active low
         pc_ex <= '0;
+        pc_plus_4_ex <= '0;
         opcode_ex <= '0;
         rd_ex <= '0;
         funct3_ex <= '0;
@@ -72,6 +75,7 @@ module id_ex_reg (
         rs1_sel_ex <= rs1_sel_ex;
         reg_write_ex <= reg_write_ex;
         wb_sel_ex <= wb_sel_ex;
+        pc_plus_4_ex <= pc_plus_4_ex;
     end
     else begin
         pc_ex <= pc_id;
@@ -88,6 +92,7 @@ module id_ex_reg (
         rs1_sel_ex <= rs1_sel_id;
         reg_write_ex <= reg_write_id;
         wb_sel_ex <= wb_sel_id;
+        pc_plus_4_ex <= pc_plus_4_id;
     end
 
     end

@@ -34,11 +34,17 @@ module imem #(
 
 
     // word aligned read, drop bottom 2 bits
-    always_ff @(posedge clk)
+    //always_ff @(posedge clk) begin
+    always_comb begin
+        //$display("INSTRR IN MEM 0 : %0b",mem[0]);
         if (en && !stall) begin
          //if (stall)
-            instr <= mem[addr[11:2]];
+            
+            //instr <= mem[addr[11:2]];
+            instr = mem[addr[11:2]];
         //else instr <= mem[addr[11:2]];
         end
+        else instr = '0;
+    end
 
 endmodule

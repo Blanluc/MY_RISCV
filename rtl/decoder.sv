@@ -70,7 +70,8 @@ module decoder (
 
         // DEFAULT
         default                 : imm = imm_I;
-        endcase  
+        endcase 
+        $display("IMM_J: %d ",imm_J);
     end
 
 
