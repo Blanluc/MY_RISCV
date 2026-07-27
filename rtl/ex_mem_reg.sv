@@ -12,25 +12,33 @@ module ex_mem_reg (
     input logic [2:0]  funct3_ex,
 
     input logic [4:0]  rd_ex,
+    input logic [11:0]  csr_reg_ex,
+    input logic [31:0]  csr_data_ex,
     input logic [31:0] pc_ex,
     input logic [31:0] pc_plus_4_ex,
     //input logic        mem_r_ex, 
     input logic        mem_w_ex, 
     input logic        reg_write_ex, 
+    input logic        csr_write_ex, 
     input logic [2:0]  wb_sel_ex,
     input logic [31:0] alu_result_ex,
+    input logic [31:0] lui_ex,
     input  logic        alu_zero_ex,
     input logic [31:0] rs2_data_ex,
 
     //output logic [6:0] opcode_mem,
     output logic [31:0] rs2_data_mem,
     output logic [4:0]  rd_mem,
+    output logic [11:0]  csr_reg_mem,
+    output logic [31:0]  csr_data_mem,
     output logic [31:0] pc_mem,
     output logic [31:0] pc_plus_4_mem,
+    output logic [31:0] lui_mem,
     output logic [6:0]  opcode_mem,
     output logic [2:0]  funct3_mem,
     //output logic        mem_r_mem, 
     output logic        mem_w_mem, 
+    output logic        csr_write_mem, 
     output logic        reg_write_mem, 
     output logic [2:0]  wb_sel_mem,
     output logic [31:0] alu_result_mem,
@@ -40,11 +48,15 @@ module ex_mem_reg (
     always_ff @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin// rst_n is active low // if stall, we flush
         pc_mem <= '0;
+        lui_mem <= '0;
         pc_plus_4_mem <= '0;
         rd_mem <= '0;
+        csr_reg_mem <= '0;
+        csr_data_mem <= '0;
         //mem_r_mem <= '0;
         mem_w_mem <= '0;
         reg_write_mem <= '0;
+        csr_write_mem <= '0;
         wb_sel_mem <= '0;
         opcode_mem <= '0;
         funct3_mem <= '0;
@@ -69,11 +81,15 @@ module ex_mem_reg (
         pc_mem <= pc_ex;
         pc_plus_4_mem <= pc_plus_4_ex;
         rd_mem <= rd_ex;
+        csr_reg_mem <= csr_reg_ex;
+        csr_data_mem <= csr_data_ex;
+        lui_mem <= lui_ex;
         //mem_r_mem <= mem_r_ex;
         funct3_mem <= funct3_ex;
         mem_w_mem <= mem_w_ex;
         opcode_mem <= opcode_ex;
         reg_write_mem <= reg_write_ex;
+        csr_write_mem <= csr_write_ex;
         wb_sel_mem <= wb_sel_ex;
         alu_result_mem <= alu_result_ex;
         alu_zero_mem <= alu_zero_ex;

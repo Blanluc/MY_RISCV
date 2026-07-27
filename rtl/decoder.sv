@@ -10,7 +10,9 @@ module decoder (
     output logic [6:0]  funct7,
     output logic [4:0]  rs1,
     output logic [4:0]  rs2,
-    output logic [31:0] imm
+    output logic [31:0] imm,
+    output logic [11:0]  csr_reg,
+    output logic [31:0] zimm // for csr
 
 );
 
@@ -33,6 +35,7 @@ module decoder (
     logic [31:0]  imm_B;
     logic [31:0]  imm_U;
     logic [31:0]  imm_J;
+    
 
     // Fixed fields
     assign opcode=instr[6:0];
@@ -41,6 +44,8 @@ module decoder (
     assign funct7=instr[31:25];
     assign rs1=instr[19:15];
     assign rs2=instr[24:20];
+    assign csr_reg=instr[31:20];
+    assign zimm={{28{instr[19]}} ,instr[18:15]};
 
     // Types of Imm depending on format <=> IMM generator already incorporated!
     assign imm_I = {{21{instr[31]}}, instr[30:20]};
@@ -54,7 +59,7 @@ module decoder (
         case(opcode)
 
         // LOAD / OP-IMM / JALR
-        `OPCODE_LOAD, `OPCODE_ITYPE, `OPCODE_JALR : imm = imm_I;
+        `OPCODE_LOAD, `OPCODE_ITYPE, `OPCODE_JALR, `OPCODE_SYSTEM : imm = imm_I;
 
         // STORE
         `OPCODE_STORE                   : imm = imm_S;
@@ -71,7 +76,7 @@ module decoder (
         // DEFAULT
         default                 : imm = imm_I;
         endcase 
-        $display("IMM_J: %d ",imm_J);
+        //$display("IMM_J: %d ",imm_J);
     end
 
 

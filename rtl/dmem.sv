@@ -13,7 +13,7 @@ module dmem #(
 )(
     input  logic        clk,
     input  logic        write_en,
-    input  logic [31:0] addr, // PC feeds straight in
+    input  logic [31:0] addr,
     input  logic [31:0] w_data, // write
     input  logic [31:0] bit_mask, 
     //input  logic  is_unsigned, // use both as indicator and mask

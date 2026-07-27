@@ -30,6 +30,8 @@ module pc_controller (
     input  logic [31:0] alu_result, // if branch
     input  logic [31:0] imm_id, // if non relative jump  // it seems they re all relative except jalr but jalr comes from alu // wait mb not
     input  logic [31:0] imm_ex,
+    input  logic [31:0] rs1_data, // ADDED
+    input  logic [31:0] lui_ex,
     output logic [31:0] pc_next, // maybe not a sel, maybe do it directly here
     output logic flush_ex,
     output logic flush_id
@@ -39,6 +41,10 @@ module pc_controller (
 logic debug_jump;
 
     always_comb begin
+        // $display("PC CONTROLLER : ");
+        // $display("pc_in : %0h",pc);
+        // $display("imm_id : %0d",imm_id);
+        // $display("imm_ex : %0d",imm_ex);
         debug_jump =0;
         if(stall) begin
             pc_next = pc; // stall, pc stays the same
@@ -46,23 +52,30 @@ logic debug_jump;
             flush_id =0;
             debug_jump =0;
         end
-        else if ((opcode_ex == `OPCODE_BRANCH) && alu_zero) begin
-            $display("BRANCH TO: %d ",pc_next);
-            $display("OPCODE: %b ",opcode_ex);
-            $display("PC: %h ",pc);
-            $display("IMM: %h ",imm_id);
+        else if (opcode_ex == `OPCODE_BRANCH && alu_zero) begin //opcode_id ==`OPCODE_JALR begin // determined at ex stage
+        //$display("JALR!!");
+        
             pc_next = pc_branch + imm_ex;
+            //$display("PC NEXT : %0d",pc_next);
             flush_ex =1;
             flush_id =1;
             debug_jump =1;
         end
-        else if (opcode_id == `OPCODE_JAL | opcode_id ==`OPCODE_JALR) begin
+        // else if (opcode_ex == `OPCODE_AUIPC) begin // determined at id stage
+        //     pc_next = pc_branch + lui_ex;
+        //     debug_jump =1;
+        //     flush_ex =1;
+        //     flush_id =1;
+        // end
+        else if (opcode_id == `OPCODE_JAL) begin // determined at id stage
             pc_next = pc_jump + imm_id;
-            $display("JUMPING TO: %d ",pc_next);
-            $display("JUMPING TO: %h ",pc_next);
-            $display("OPCODE: %b ",opcode_id);
-            $display("PC: %h ",pc);
-            $display("IMM: %h ",imm_id);
+            debug_jump =1;
+            flush_ex =0;
+            flush_id =1;
+        end
+        else if (opcode_id == `OPCODE_JALR) begin // determined at id stage
+        $display("PC NEXT (PC CTRL) : %0h",pc_next);
+            pc_next = imm_id + rs1_data;
             debug_jump =1;
             flush_ex =0;
             flush_id =1;

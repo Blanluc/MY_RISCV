@@ -6,7 +6,7 @@
 `define WB_ALU    3'b010
 `define WB_IMM	  3'b011
 `define WB_PC_PLUS_4 3'b100
-`define WB_CSR_RD 3'b101 // not used for now
+`define WB_CSR_RD 3'b101 // csr
 
 
 `endif // WB_SEL_SVH

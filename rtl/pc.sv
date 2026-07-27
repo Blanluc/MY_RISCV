@@ -15,15 +15,18 @@ module pc (
 );
 
     initial begin
-        pc_q='0;
+        pc_q = 32'h00004000;
+        //pc_q = 32'h00000000;
         //pc_prev_q='0;
         imem_en='0;
     end
     
     // pc logic
     always_ff @(posedge clk or negedge rst_n) begin
+        //$display("PC IN : %h",pc_d);
     if (!rst_n) begin// rst_n is active low
-        pc_q <= '0;
+        pc_q <= 32'h00004000;
+        //pc_q <= 32'h00000000;
         //pc_prev_q <= '0;
         imem_en<='0;
     end

@@ -2,7 +2,7 @@
 // will be initialized with hex file
 
 module imem #(
-    parameter int unsigned DEPTH = 1024  // 4 kb
+    parameter int unsigned DEPTH = 16384  // 64 kb
 )(
     input  logic        clk,
     input  logic        en, // so it doesnt fetch twice at beninging
@@ -13,7 +13,7 @@ module imem #(
 );
     logic [31:0] mem [0:DEPTH-1];
 
-    initial $readmemh("branch_test.hex", mem); // read hex data from txt file and load it into mem arr
+    initial $readmemh("sw/rom.hex", mem); // read hex data from txt file and load it into mem arr
 
     // 1 byte = 8 bits
     // 1 word = 32 bits
@@ -41,7 +41,8 @@ module imem #(
          //if (stall)
             
             //instr <= mem[addr[11:2]];
-            instr = mem[addr[11:2]];
+            //instr = mem[addr[15:2]];
+            instr = mem[(addr - 32'h80000000) >> 2];
         //else instr <= mem[addr[11:2]];
         end
         else instr = '0;

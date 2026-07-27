@@ -57,7 +57,8 @@ module alu_controller (
             endcase
         end
 
-        `OPCODE_AUIPC: alu_op=`ALU_SLL;
+        // Maybe this is wrong
+        `OPCODE_AUIPC: alu_op=`ALU_ADD;
 
         // todo : for LUI no operation is done as the shift is already done
 

@@ -40,8 +40,10 @@ module hazard_unit (
     input  logic        rst_n,
 
     input logic        reg_write, // detect if we modify reg
+    input logic        csr_write, // detect if we modify csr
 
     input  logic [4:0] rd, // each cycle gets a new one, shouuld be written to
+    input  logic [11:0] csr,
     input  logic [4:0] src1,
     input  logic [4:0] src2,
     //output  logic [4:0] src1_q,
@@ -62,10 +64,19 @@ logic        rw_mem;
 logic [4:0] rd_wb;
 logic       rw_wb;
 
+logic [11:0] csr_ex;
+logic [11:0] csr_mem;
+logic        csr_write_ex;
+logic        csr_write_mem;
+logic [11:0] csr_wb;
+logic       csr_write_wb;
+
 always_ff @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
         rd_ex  <= '0; rd_mem <= '0; rd_wb  <= '0;
         rw_ex  <= '0; rw_mem <= '0; rw_wb  <= '0;
+        csr_ex  <= '0; csr_mem <= '0; csr_wb  <= '0;
+        csr_write_ex  <= '0; csr_write_mem <= '0; csr_write_wb  <= '0;
     end else begin
         rd_ex  <= stall ? 5'b0 : rd;
         rw_ex  <= stall ? 1'b0 : reg_write;
@@ -73,6 +84,13 @@ always_ff @(posedge clk or negedge rst_n) begin
         rw_mem <= rw_ex;
         rd_wb  <= rd_mem;
         rw_wb  <= rw_mem;
+
+        csr_ex  <= stall ? 12'b0 : csr;
+        csr_write_ex  <= stall ? 1'b0 : csr_write;
+        csr_mem <= csr_ex;
+        csr_write_mem <= csr_write_ex;
+        csr_wb  <= csr_mem;
+        csr_write_wb  <= csr_write_mem;
     end
 end
 
@@ -81,6 +99,10 @@ always_comb begin
     if (rw_ex  && (rd_ex  != 5'b0) && (src1 == rd_ex  || src2 == rd_ex))  stall = 1'b1;
     if (rw_mem && (rd_mem != 5'b0) && (src1 == rd_mem || src2 == rd_mem)) stall = 1'b1;
     if (rw_wb  && (rd_wb  != 5'b0) && (src1 == rd_wb  || src2 == rd_wb))  stall = 1'b1;
+
+    if (csr_write_ex  && (csr == csr_ex))  stall = 1'b1;
+    if (csr_write_mem && (csr == csr_mem)) stall = 1'b1;
+    if (csr_write_wb  && (csr == csr_wb))  stall = 1'b1;
 end
 
 

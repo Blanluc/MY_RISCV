@@ -9,11 +9,15 @@ module mem_wb_reg (
     input  logic        stall,
 
     input logic [4:0]  rd_mem,
+    input logic [11:0]  csr_reg_mem,
+    input logic [31:0]  csr_data_mem,
     input logic [31:0] pc_mem,
+    input logic [31:0] lui_mem,
     input logic [31:0] pc_plus_4_mem,
     //input logic        mem_r_mem, 
     input logic        mem_w_mem, 
     input logic        reg_write_mem, 
+    input logic        csr_write_mem, 
     input logic [2:0]  wb_sel_mem,
     input logic [31:0] alu_result_mem,
     input logic alu_zero_mem,
@@ -21,11 +25,15 @@ module mem_wb_reg (
 
     //output logic [6:0] opcode_wb,
     output logic [4:0]  rd_wb,
+    output logic [11:0]  csr_reg_wb,
+    output logic [31:0]  csr_data_wb,
     output logic [31:0] pc_wb,
     output logic [31:0] pc_plus_4_wb,
+    output logic [31:0] lui_wb,
     //output logic        mem_r_wb, 
     output logic        mem_w_wb, 
     output logic        reg_write_wb, 
+    output logic        csr_write_wb, 
     output logic [2:0]  wb_sel_wb,
     output logic [31:0] r_data_wb,
     output logic [31:0] alu_result_wb,
@@ -37,9 +45,13 @@ module mem_wb_reg (
         pc_wb <= '0;
         pc_plus_4_wb <= '0;
         rd_wb <= '0;
+        csr_reg_wb <= '0;
+        csr_data_wb <= '0;
+        lui_wb <= '0;
         //mem_r_wb <= '0;
         mem_w_wb <= '0;
         reg_write_wb <= '0;
+        csr_write_wb <= '0;
         wb_sel_wb <= '0;
         r_data_wb <= '0;
         alu_result_wb <= '0;
@@ -58,9 +70,13 @@ module mem_wb_reg (
         pc_wb <= pc_mem;
         pc_plus_4_wb <= pc_plus_4_mem;
         rd_wb <= rd_mem;
+        csr_reg_wb <= csr_reg_mem;
+        csr_data_wb <= csr_data_mem;
+        lui_wb <= lui_mem;
         //mem_r_wb <= mem_r_mem;
         mem_w_wb <= mem_w_mem;
         reg_write_wb <= reg_write_mem;
+        csr_write_wb <= csr_write_mem;
         wb_sel_wb <= wb_sel_mem;
         r_data_wb <= r_data_mem;
         alu_result_wb <= alu_result_mem;
