@@ -5,6 +5,7 @@ module alu (
     input  logic [31:0] operand_a, // can be PC!
     input  logic [31:0] operand_b,
     output logic [31:0] result, 
+    output logic [31:0] csr_data, 
     output logic alu_zero // branch
 );
 
@@ -21,6 +22,7 @@ module alu (
     logic [31:0]  srl_output;
     logic [31:0]  slt_output;
     logic [31:0]  sltu_output;
+    logic [31:0]  andn_output;
 
     logic alu_zero_slt;
     logic alu_zero_sltu;
@@ -47,6 +49,8 @@ module alu (
     // AND
     assign and_output = operand_a & operand_b;
 
+    assign andn_output = operand_a & (~operand_b);
+
     //Shifts : RISC V isa only uses 5 lower bits of src2
 
     // SRA
@@ -62,6 +66,10 @@ module alu (
     // SLTU
     // TODO (but I think its already ok) : If comparing x0 and rs2, if rs2 is != 0, then res is 1
     assign sltu_output = {31'b0, operand_a < operand_b}; // concatenation
+
+
+    assign csr_data = operand_a; // csr
+
 
 
     // Im not sure about if its signed or unsigned so for now im doing signed
@@ -134,7 +142,12 @@ module alu (
         end
         `ALU_SLTU       : begin
             result = sltu_output;
-            alu_zero = slt_output[0]; // BLTU, BGEU
+            alu_zero = sltu_output[0]; // BLTU, BGEU
+        end
+
+        `ALU_ANDN        : begin
+            result = andn_output;
+            alu_zero = '0;
         end
 
         default    : begin

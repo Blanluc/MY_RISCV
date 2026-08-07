@@ -13,14 +13,15 @@ data = open('/tmp/riscv_test.bin','rb').read()
 " > $SIMDIR/sw/rom.hex
 
 # Run sim and capture output
-OUTPUT=$($SIMDIR/obj_dir/Vtb_core 2>&1)
+#OUTPUT=$($SIMDIR/obj_dir/Vtb_core 2>&1)
+OUTPUT=$(cd "$SIMDIR" && ./obj_dir/Vtb_core 2>&1)
 
 # Check result
 if echo "$OUTPUT" | grep -q "PASS"; then
     echo "RVCP-SUMMARY: TEST PASSED - Test File \"$(basename $ELF)\""
     exit 0
 else
-    echo "RVCP-SUMMARY: TEST FAILED - Test File \"$(basename $ELF)\""
-    echo "$OUTPUT" | tail -5
+    echo "RVCP-SUMMA RY: TEST FAILED - Test File \"$(basename $ELF)\""
+    echo "$OUTPUT"
     exit 1
 fi

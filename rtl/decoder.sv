@@ -12,6 +12,9 @@ module decoder (
     output logic [4:0]  rs2,
     output logic [31:0] imm,
     output logic [11:0]  csr_reg,
+    output logic   rd_x0,
+    output logic   rs1_x0,
+    //output logic   is_jalr,
     output logic [31:0] zimm // for csr
 
 );
@@ -45,6 +48,8 @@ module decoder (
     assign rs1=instr[19:15];
     assign rs2=instr[24:20];
     assign csr_reg=instr[31:20];
+    assign rd_x0=instr[11:7]=='0;
+    assign rs1_x0=instr[19:15]=='0;
     assign zimm={{28{instr[19]}} ,instr[18:15]};
 
     // Types of Imm depending on format <=> IMM generator already incorporated!

@@ -21,6 +21,9 @@ module main_mem #(
     input  logic [31:0] rom_addr, // PC feeds straight in
     input  logic [31:0] dram_addr,
 
+    input  logic [4:0] shift_amt,
+    input  logic sign_extend,
+
     input  logic [31:0] dram_w_data, // write
     input  logic [31:0] dram_bit_mask, // dram
 
@@ -63,6 +66,9 @@ module main_mem #(
         end
         //$readmemh("sw/rom.hex", mem, 32'h00000000, 32'h0FFFFFFF);
         $readmemh("sw/rom.hex", mem);
+        //$display("HELLO");
+        //$display("MEM[0x14f50] = %h", mem[(32'h14f50 - BASE) >> 2]);   // BASE = 32'h4000
+        
     end
 
     //logic [31:0] temp_data;
@@ -86,17 +92,63 @@ module main_mem #(
 
 
     // word aligned, drop bottom 2 bits
-    always_ff @(posedge clk) begin  
+    // always_ff @(posedge clk) begin  
+    //     if (dram_write_en) begin
+    //         mem[(dram_addr-BASE)>>2] <= (dram_w_data & dram_bit_mask) | (mem[(dram_addr-BASE)>>2] & ~dram_bit_mask);
+    //     end
+    // end
+
+    localparam logic [31:0] UART_ADDR = 32'h10000000;
+    logic dram_write_en_prev;
+    always_ff @(posedge clk) dram_write_en_prev <= dram_write_en;
+
+    always_ff @(posedge clk) begin
         if (dram_write_en) begin
-            mem[(dram_addr-BASE)>>2] <= (dram_w_data & dram_bit_mask) | (mem[(dram_addr-BASE)>>2] & ~dram_bit_mask);
+            if (dram_write_en && !dram_write_en_prev && dram_addr == UART_ADDR) begin
+            $write("%c", dram_w_data[7:0]);
+            end else begin
+            //mem[(dram_addr-BASE)>>2] <= (dram_w_data & dram_bit_mask) | (mem[(dram_addr-BASE)>>2] & ~dram_bit_mask);
+            mem[(dram_addr-BASE)>>2] <= ((dram_w_data << shift_amt) & dram_bit_mask) | (mem[(dram_addr-BASE)>>2] & ~dram_bit_mask);
+            end
         end
     end
+
+//     always_ff @(posedge clk) begin
+//   if (dram_write_en)
+//     $display("T=%0t PC=%h WRITE_EN=%b PREV=%b ADDR=%h DATA=%c", $time, core.pc_ex, dram_write_en, dram_write_en_prev, dram_addr, dram_w_data);
+// end
 
     logic [31:0] debug_mem_addr;
     assign debug_mem_addr = (dram_addr-BASE)>>2;
     assign instr = mem[(rom_addr-BASE)>>2];
 
-    assign dram_r_data = (mem[(dram_addr-BASE)>>2] & dram_bit_mask);
+    logic  msb;
+
+    
+
+    // assign dram_r_data = (mem[(dram_addr-BASE)>>2] & dram_bit_mask);
+    logic [31:0] dram_r_data_raw;
+    logic [31:0] shifted_mask;
+    assign shifted_mask = dram_bit_mask >> shift_amt;
+    assign dram_r_data_raw = (mem[(dram_addr-BASE)>>2] & dram_bit_mask) >> shift_amt;
+    always_comb begin
+        case (sign_extend)
+        1 : begin 
+            if (shifted_mask[15]) begin
+                dram_r_data = 32'(signed' (dram_r_data_raw[15:0]));
+            end
+            else if (shifted_mask[7] ) begin
+                dram_r_data = 32'(signed' (dram_r_data_raw[7:0]));
+            end else begin
+            dram_r_data = dram_r_data_raw;
+            end
+        end
+        default : dram_r_data = dram_r_data_raw;
+
+        endcase
+    end
+    // if signed => take msb
+
 
 
 

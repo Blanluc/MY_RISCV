@@ -11,7 +11,7 @@
 `define ALU_SLL	 4'b0111
 `define ALU_SRL	 4'b1000
 `define ALU_SRA	 4'b1001
-// `define ALU_ABJ	4'b1010
+`define ALU_ANDN 4'b1010
 // `define ALU_BPA	4'b1110
 `define ALU_NOP  4'b1111
 

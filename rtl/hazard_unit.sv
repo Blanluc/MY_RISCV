@@ -91,6 +91,14 @@ always_ff @(posedge clk or negedge rst_n) begin
         csr_write_mem <= csr_write_ex;
         csr_wb  <= csr_mem;
         csr_write_wb  <= csr_write_mem;
+        if (core.pc_ex > 32'h25420) begin
+        // $display("--------------------");
+        // $display("PC (ID): %h",core.pc_id);
+        // $display("HAZ. UNIT : RD = %d, SRC 1 = %d, SRC 2 = %d",rd,src1,src2);
+        // $display("RD_EX : %d,RD_MEM : %d,RD_WB : %d ",rd_ex,rd_mem,rd_wb);
+        // $display("STALL : %d",stall);
+        // $display("--------------------");
+        end
     end
 end
 

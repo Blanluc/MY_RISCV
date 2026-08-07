@@ -14,6 +14,7 @@ module ex_mem_reg (
     input logic [4:0]  rd_ex,
     input logic [11:0]  csr_reg_ex,
     input logic [31:0]  csr_data_ex,
+    input logic [31:0]  csr_content_ex,
     input logic [31:0] pc_ex,
     input logic [31:0] pc_plus_4_ex,
     //input logic        mem_r_ex, 
@@ -31,6 +32,7 @@ module ex_mem_reg (
     output logic [4:0]  rd_mem,
     output logic [11:0]  csr_reg_mem,
     output logic [31:0]  csr_data_mem,
+    output logic [31:0]  csr_content_mem,
     output logic [31:0] pc_mem,
     output logic [31:0] pc_plus_4_mem,
     output logic [31:0] lui_mem,
@@ -53,6 +55,7 @@ module ex_mem_reg (
         rd_mem <= '0;
         csr_reg_mem <= '0;
         csr_data_mem <= '0;
+        csr_content_mem <= '0;
         //mem_r_mem <= '0;
         mem_w_mem <= '0;
         reg_write_mem <= '0;
@@ -83,6 +86,7 @@ module ex_mem_reg (
         rd_mem <= rd_ex;
         csr_reg_mem <= csr_reg_ex;
         csr_data_mem <= csr_data_ex;
+        csr_content_mem <= csr_content_ex;
         lui_mem <= lui_ex;
         //mem_r_mem <= mem_r_ex;
         funct3_mem <= funct3_ex;

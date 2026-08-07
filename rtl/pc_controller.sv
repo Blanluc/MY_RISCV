@@ -35,8 +35,11 @@ module pc_controller (
     output logic [31:0] pc_next, // maybe not a sel, maybe do it directly here
     output logic flush_ex,
     output logic flush_id
+    //output logic is_jalr
  
 );
+
+logic [31:0] jalr_target_raw;
 
 logic debug_jump;
 
@@ -45,6 +48,7 @@ logic debug_jump;
         // $display("pc_in : %0h",pc);
         // $display("imm_id : %0d",imm_id);
         // $display("imm_ex : %0d",imm_ex);
+        jalr_target_raw = imm_id + rs1_data;
         debug_jump =0;
         if(stall) begin
             pc_next = pc; // stall, pc stays the same
@@ -57,8 +61,9 @@ logic debug_jump;
         
             pc_next = pc_branch + imm_ex;
             //$display("PC NEXT : %0d",pc_next);
-            flush_ex =1;
+            flush_ex =1; // check
             flush_id =1;
+            //is_jalr=0;
             debug_jump =1;
         end
         // else if (opcode_ex == `OPCODE_AUIPC) begin // determined at id stage
@@ -71,19 +76,22 @@ logic debug_jump;
             pc_next = pc_jump + imm_id;
             debug_jump =1;
             flush_ex =0;
+            //is_jalr=0;
             flush_id =1;
         end
         else if (opcode_id == `OPCODE_JALR) begin // determined at id stage
-        $display("PC NEXT (PC CTRL) : %0h",pc_next);
-            pc_next = imm_id + rs1_data;
+        //$display("PC NEXT (PC CTRL) : %0h",pc_next);
+            pc_next = {jalr_target_raw[31:1],1'b0};
             debug_jump =1;
             flush_ex =0;
+            //is_jalr=1;
             flush_id =1;
         end
         else begin 
             pc_next = pc_plus_4;
             flush_ex =0;
             flush_id =0;
+            //is_jalr=0;
         end
     end     
 

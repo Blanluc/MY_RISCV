@@ -83,6 +83,23 @@ module alu_controller (
 
         end
 
+        `OPCODE_SYSTEM : begin
+            
+            // dpepnds on funct 3
+            case (funct3)
+
+
+            `CSRRS,`CSRRC: alu_op=`ALU_AND;
+
+
+            `CSRRSI,`CSRRCI: alu_op=`ALU_ANDN;
+
+            default : alu_op=`ALU_ADD;
+
+            endcase
+    
+        end
+
         
         
         default : alu_op=`ALU_ADD; // maybe wrong, I think i need nop

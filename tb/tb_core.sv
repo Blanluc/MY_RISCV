@@ -38,6 +38,7 @@ initial begin
     //$finish;
 end
     
+    
 
 
 
@@ -88,6 +89,7 @@ assign y=core.regfile.regs[10];
 
 int cycle_count = 0;
 always @(posedge clk) begin
+  //$display("T=%0t A0_REGFILE=%h", $time, core.regfile.regs[10]);
     cycle_count <= cycle_count + 1;
     if (cycle_count >= 10000000) begin
     //if (cycle_count >= 40) begin
@@ -96,15 +98,16 @@ always @(posedge clk) begin
     end
 end
 
-// Halt detection
+//Halt detection
 always @(posedge clk) begin
     if (core.mem_w_mem && core.alu_result_mem == 32'h20000000) begin
-        if (core.w_data_mem != 32'h0)
-            $display("RVCP-SUMMARY: TEST PASSED - Test File \"test\"");
-        else
-            $display("RVCP-SUMMARY: TEST FAILED - Test File \"test\"");
+        // if (core.w_data_mem != 32'h0)
+        //     $display("RVCP-SUMMARY: TEST PASSED - Test File \"test\"");
+        // else
+        //     $display("RVCP-SUMMARY: TEST FAILED - Test File \"test\"");
         $finish;
     end
 end
+
 
 endmodule

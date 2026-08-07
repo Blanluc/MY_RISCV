@@ -39,6 +39,7 @@ pc_controller pc_controller (
         .lui_ex(lui_ex),
         .imm_id(imm_id),
         .imm_ex(imm_ex),
+        //.is_jalr(is_jalr_id),
         //.pc_prev_q(pc_prev_if),
         .alu_result(alu_result_ex),
         .stall(stall),
@@ -87,6 +88,8 @@ main_mem main_mem (
 
         .dram_addr (alu_result_mem), //alu reslut mem =
         .dram_bit_mask(bit_mask_mem),
+        .shift_amt (shift_amt_mem),
+        .sign_extend (sign_extend_mem), // will know how to extend depending on mask
         .dram_write_en(mem_w_mem),
         .dram_w_data(rs2_data_mem), // store is always with rs2
         .dram_r_data(r_data_mem)//
@@ -94,6 +97,7 @@ main_mem main_mem (
 
 logic [31:0] pc_id;
 logic  flush_id;
+//logic  is_jalr_id;
 logic  flush_ex;
 logic [31:0] instr_id;
 logic [31:0] pc_plus_4_id;
@@ -123,7 +127,7 @@ if_id_reg if_id_reg(
 logic [6:0] opcode_id;
 logic [4:0]  rd_id;
 logic [11:0]  csr_reg_id;
-logic [31:0]  csr_data_id;
+//logic [31:0]  csr_data_id;
 logic [2:0]  funct3_id;
 logic [6:0]  funct7_id;
 logic [4:0]  rs1_id;
@@ -133,12 +137,16 @@ logic [31:0] imm_id;
 logic        mem_w_id;
 logic        rs2_sel_id;
 logic       [1:0] rs1_sel_id;
+logic        rd_x0;
+logic        rs1_x0;
 logic        reg_write_id;
-logic        csr_write_id;
+logic        csr_w_en_id;
+logic        csr_r_en_id;
 logic [2:0]  wb_sel_id;
 logic [31:0] rs1_data_id;
 logic [31:0] rs2_data_id;
 logic [31:0] zimm_id;
+logic [31:0] csr_content_id;
 
 // Todo:
 // 1) Add zimm in the regs up until the csr unit
@@ -156,6 +164,8 @@ decoder decoder (
             .rs2 (rs2_id),
             .imm (imm_id),
             .csr_reg (csr_reg_id),
+            .rd_x0 (rd_x0), // added for csr
+            .rs1_x0 (rs1_x0), // added for csr
             .zimm (zimm_id)
 			);
 
@@ -168,8 +178,12 @@ control_unit control_unit (
             .rs1_sel (rs1_sel_id),
             .rs2_sel (rs2_sel_id),
             .reg_write (reg_write_id),
-            .csr_write (csr_write_id),
+            .csr_write (csr_w_en_id),
+            .csr_read (csr_r_en_id),
             //.flush_id(flush_id),
+            .rd_x0 (rd_x0), // added for csr
+            .rs1_x0 (rs1_x0), // added for csr
+            .zimm (zimm_id),
             .wb_sel (wb_sel_id)
 			);
 
@@ -181,7 +195,7 @@ hazard_unit hazard_unit (
             .rd  (rd_id), // reg that changes // could be also csr?
             //.stall_d (stall),
             .csr (csr_reg_id),
-            .csr_write(csr_write_id),
+            .csr_write(csr_w_en_id),
             .src1 (rs1_id),
             .src2 (rs2_id),
             .stall (stall),
@@ -192,21 +206,29 @@ regfile regfile (
             .clk  (clk),
             .w_addr (rd_wb), // from wb stage
             .w_data (return_val), // from wb stage // still have to mux the wb
-            .w_en (reg_write_wb), // from wb stage
+            .w_en (reg_write_wb), // from wb stage // write enable
             .r_addr1 (rs1_id),
             .r_data1 (rs1_data_id),
             .r_addr2 (rs2_id),
             .r_data2 (rs2_data_id)
 			);
 
+// Todo : csr ops
+// when its csr, read csr Is a swap a good idea?
+// maybe stall stuff, first store one and then the other?
+// have something to store simult
+// instead of csr being in the wb mux, make exclusing wb reg
+logic  csr_r_en_ex;
+
 csr_file csr_file (	
             .clk  (clk),
             .rst_n (rst_n),
             .csr_w_addr (csr_reg_wb), // from wb stage
             .csr_w_data (csr_data_wb), // from wb stage // still have to mux the wb
-            .csr_w_en (csr_write_wb), // from wb stage
+            .csr_r_en (csr_r_en_id), // complete ; get it from ex stage // why
+            .csr_w_en (csr_write_wb), // from wb stage // enable
             .csr_r_addr (csr_reg_id),
-            .csr_r_data (csr_data_id)
+            .csr_r_data (csr_content_id)
 			);
     
 
@@ -231,6 +253,7 @@ logic [2:0]  wb_sel_ex;
 logic [3:0] alu_op_ex; // alu sel
 logic [31:0] rs1_data_ex;
 logic [31:0] rs2_data_ex;
+logic [31:0] csr_content_ex;
 
 
 
@@ -250,13 +273,13 @@ id_ex_reg id_ex_reg(
     .funct7_id (funct7_id),
     .rs1_data_id (rs1_data_id),
     .rs2_data_id (rs2_data_id),
-    .csr_data_id (csr_data_id),
+    .csr_content_id (csr_content_id),
     .csr_reg_id (csr_reg_id),
     .imm_id (imm_id),
     .zimm_id (zimm_id),
     .wb_sel_id(wb_sel_id),
     .reg_write_id(reg_write_id),
-    .csr_write_id(csr_write_id),
+    .csr_write_id(csr_w_en_id),
     .rs1_sel_id(rs1_sel_id),
     .rs2_sel_id(rs2_sel_id),
     //.mem_r_id(mem_r_id),
@@ -272,7 +295,7 @@ id_ex_reg id_ex_reg(
     .funct7_ex (funct7_ex),
     .rs1_data_ex (rs1_data_ex),
     .rs2_data_ex (rs2_data_ex),
-    .csr_data_ex (csr_data_ex),
+    .csr_content_ex (csr_content_ex),
     .csr_reg_ex (csr_reg_ex),
     .imm_ex (imm_ex),
     .zimm_ex (zimm_ex),
@@ -297,7 +320,7 @@ logic  alu_zero_out_ex;
 logic [31:0] alu_operand_a_ex;
 logic [31:0] alu_operand_b_ex;
 
-logic [32:0] csr_out_ex;
+//logic [32:0] csr_out_ex;
 
 logic [31:0] pc_wb;
 logic [4:0]  rd_wb;
@@ -312,6 +335,7 @@ logic [2:0]  wb_sel_wb;
 logic [31:0] alu_result_wb; // alu output
 logic  alu_zero_wb;
 logic [31:0] pc_plus_4_wb;
+logic [31:0] csr_content_wb;
 
 
 
@@ -346,7 +370,8 @@ alu alu(
     .operand_a (alu_operand_a_ex),
     .operand_b (alu_operand_b_ex),
     .result (alu_result_ex),
-    .alu_zero (alu_zero_in_ex)
+    .alu_zero (alu_zero_in_ex),
+    .csr_data (csr_data_ex) // to be written to csr
 );
 
 branch_unit branch_unit(
@@ -363,14 +388,14 @@ branch_unit branch_unit(
 // Todo: csr unit works on data :
 // for now we need a select between alu out and csr out to decide writeback
 
-csr_unit csr_unit(
-    .funct3 (funct3_ex),
-    //.funct7 (funct7_ex),
-    .opcode (opcode_ex),
-    .csr_in(alu_operand_b_ex),
-    .src1_in(alu_operand_a_ex),
-    .csr_out(csr_data_ex)
-);
+// csr_unit csr_unit(
+//     .funct3 (funct3_ex),
+//     //.funct7 (funct7_ex),
+//     .opcode (opcode_ex),
+//     .csr_in(alu_operand_b_ex),
+//     .src1_in(alu_operand_a_ex),
+//     .csr_out(csr_data_ex)
+// );
 
 
 logic [31:0] pc_mem;
@@ -387,6 +412,7 @@ logic [31:0] alu_result_mem; // alu output
 logic [6:0] opcode_mem; 
 logic [2:0]  funct3_mem;
 logic [31:0] pc_plus_4_mem;
+logic [31:0] csr_content_mem;
 
 logic [31:0] csr_data_mem; // csr
 
@@ -412,6 +438,7 @@ ex_mem_reg ex_mem_reg(
     .reg_write_mem (reg_write_mem),
     .csr_write_mem (csr_write_mem),
     .csr_data_mem (csr_data_mem),
+    .csr_content_mem (csr_content_mem),
     .alu_result_mem (alu_result_mem),
     .alu_zero_mem (alu_zero_mem),
     .rs2_data_ex (rs2_data_ex),
@@ -429,6 +456,7 @@ ex_mem_reg ex_mem_reg(
     .wb_sel_ex (wb_sel_ex),
     .reg_write_ex (reg_write_ex),
     .csr_data_ex (csr_data_ex),
+    .csr_content_ex (csr_content_ex),
     .csr_write_ex (csr_write_ex),
     .rs2_data_mem (rs2_data_mem),
     .alu_result_ex (alu_result_ex)
@@ -439,7 +467,8 @@ ex_mem_reg ex_mem_reg(
 logic [31:0] r_data_mem;
 logic [31:0] w_data_mem;
 logic [31:0] bit_mask_mem;
-logic is_unsigned;
+logic [4:0] shift_amt_mem;
+logic sign_extend_mem;
 logic [31:0] r_data_wb;
 
 // make this take
@@ -451,7 +480,9 @@ mem_controller mem_controller (
         //.alu_result(alu_result_mem),
         .funct3(funct3_mem),
         .bit_mask(bit_mask_mem),
-        .is_unsigned(is_unsigned),
+        .sign_extend(sign_extend_mem),
+        .addr_lsb  (alu_result_mem[1:0]),
+        .shift_amt (shift_amt_mem),
         .opcode(opcode_mem)
         //.r_data(r_data_mem)
         //.instr(instr_if) // instr is already wired through the imem, dont need to do anything here
@@ -489,6 +520,7 @@ mem_wb_reg mem_wb_reg(
     .rd_wb (rd_wb),
     .csr_reg_wb (csr_reg_wb),
     .csr_data_wb (csr_data_wb),
+    .csr_content_wb (csr_content_wb),
     //.mem_r_wb (mem_r_wb),
     .mem_w_wb (mem_w_wb),
     .wb_sel_wb (wb_sel_wb),
@@ -499,11 +531,12 @@ mem_wb_reg mem_wb_reg(
     .r_data_wb(r_data_wb),
     
     .lui_mem (lui_mem),
-    .pc_mem (pc_wb),
+    .pc_mem (pc_mem),
     .pc_plus_4_mem (pc_plus_4_mem),
     .rd_mem (rd_mem),
     .csr_reg_mem (csr_reg_mem),
     .csr_data_mem (csr_data_mem),
+    .csr_content_mem (csr_content_mem),
     //.r_data(r_data_mem)
     //.mem_r_mem (mem_r_mem),
     .mem_w_mem (mem_w_mem),
@@ -523,7 +556,7 @@ case (wb_sel_wb)
     `WB_PC_PLUS_4 : return_val = pc_plus_4_wb; // JAL/JALR
     //`WB_PC_ADD : return_val = alu_result_wb;
     `WB_IMM : return_val = lui_wb; // JAL/JALR
-    `WB_CSR_RD : return_val = csr_data_wb; // csr
+    `WB_CSR_RD : return_val = csr_content_wb; // csr
     default : return_val = alu_result_wb;
 
 endcase

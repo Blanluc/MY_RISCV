@@ -5,7 +5,8 @@ module csr_file(
     input  logic        rst_n,
     input  logic [11:0]  csr_w_addr,
     input  logic [31:0] csr_w_data,
-    input  logic        csr_w_en,
+    input  logic        csr_w_en, // write enable
+    input  logic        csr_r_en, // read enable
     input  logic [11:0]  csr_r_addr,
     output logic [31:0] csr_r_data
 );
@@ -50,7 +51,7 @@ module csr_file(
 
 
     always_ff @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
+        if (!rst_n) begin 
             misa  <= 32'h40000100;
             mstatus  <= '0;
             mtvec    <= '0;
@@ -83,22 +84,26 @@ module csr_file(
 
     // Read
     always_comb begin
-        unique case (csr_r_addr)
-            ADDR_MSTATUS:  csr_r_data = mstatus;
-            ADDR_MTVEC:    csr_r_data = mtvec;
-            ADDR_MSCRATCH: csr_r_data = mscratch;
-            ADDR_MEPC:     csr_r_data = mepc;
-            ADDR_MCAUSE:   csr_r_data = mcause;
-            ADDR_MTVAL:    csr_r_data = mtval;
-            ADDR_MHARTID:  csr_r_data = mhartid;
-            ADDR_MIE: csr_r_data = mie;
-            ADDR_MIP: csr_r_data = mip;
-            ADDR_MISA: csr_r_data = misa;
-            ADDR_MARCHID : csr_r_data  = marchid;
-            ADDR_VENDORID: csr_r_data = mvendorid;
-            //ADDR_MIMPID: csr_r_data = mimpid;
-            default:       csr_r_data = 32'd0; // unimplemented CSR reads as 0
-        endcase
+        // TODO : APPARENTLY DOING LIKE THIS IS CORRECT, VERIFY WHY?
+        csr_r_data = 0;
+        if (csr_r_en) begin
+            unique case (csr_r_addr)
+                ADDR_MSTATUS:  csr_r_data = mstatus;
+                ADDR_MTVEC:    csr_r_data = mtvec;
+                ADDR_MSCRATCH: csr_r_data = mscratch;
+                ADDR_MEPC:     csr_r_data = mepc;
+                ADDR_MCAUSE:   csr_r_data = mcause;
+                ADDR_MTVAL:    csr_r_data = mtval;
+                ADDR_MHARTID:  csr_r_data = mhartid;
+                ADDR_MIE: csr_r_data = mie;
+                ADDR_MIP: csr_r_data = mip;
+                ADDR_MISA: csr_r_data = misa;
+                ADDR_MARCHID : csr_r_data  = marchid;
+                ADDR_VENDORID: csr_r_data = mvendorid;
+                //ADDR_MIMPID: csr_r_data = mimpid;
+                default:       csr_r_data = 32'd0; // unimplemented CSR reads as 0
+            endcase
+        end
     end
 
     

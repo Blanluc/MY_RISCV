@@ -27,8 +27,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_core___024root final {
         CData/*0:0*/ tb_core__DOT__core__DOT__rs2_sel_id;
         CData/*1:0*/ tb_core__DOT__core__DOT__rs1_sel_id;
         CData/*0:0*/ tb_core__DOT__core__DOT__reg_write_id;
-        CData/*0:0*/ tb_core__DOT__core__DOT__csr_write_id;
+        CData/*0:0*/ tb_core__DOT__core__DOT__csr_w_en_id;
+        CData/*0:0*/ tb_core__DOT__core__DOT__csr_r_en_id;
         CData/*2:0*/ tb_core__DOT__core__DOT__wb_sel_id;
+        CData/*0:0*/ tb_core__DOT__core__DOT__csr_r_en_ex;
         CData/*6:0*/ tb_core__DOT__core__DOT__opcode_ex;
         CData/*4:0*/ tb_core__DOT__core__DOT__rd_ex;
         CData/*2:0*/ tb_core__DOT__core__DOT__funct3_ex;
@@ -56,8 +58,11 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_core___024root final {
         CData/*0:0*/ tb_core__DOT__core__DOT__csr_write_mem;
         CData/*6:0*/ tb_core__DOT__core__DOT__opcode_mem;
         CData/*2:0*/ tb_core__DOT__core__DOT__funct3_mem;
-        CData/*0:0*/ tb_core__DOT__core__DOT__is_unsigned;
+        CData/*4:0*/ tb_core__DOT__core__DOT__shift_amt_mem;
+        CData/*0:0*/ tb_core__DOT__core__DOT__sign_extend_mem;
         CData/*0:0*/ tb_core__DOT__core__DOT__pc_controller__DOT__debug_jump;
+        CData/*0:0*/ tb_core__DOT__core__DOT__main_mem__DOT__dram_write_en_prev;
+        CData/*0:0*/ tb_core__DOT__core__DOT__main_mem__DOT__msb;
         CData/*4:0*/ tb_core__DOT__core__DOT__hazard_unit__DOT__rd_ex;
         CData/*4:0*/ tb_core__DOT__core__DOT__hazard_unit__DOT__rd_mem;
         CData/*0:0*/ tb_core__DOT__core__DOT__hazard_unit__DOT__rw_ex;
@@ -76,13 +81,13 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_core___024root final {
         CData/*0:0*/ __VstlFirstIteration;
         CData/*0:0*/ __VstlPhaseResult;
         CData/*0:0*/ __Vtrigprevexpr___TOP__tb_core__DOT__clk__0;
+    };
+    struct {
         CData/*0:0*/ __Vtrigprevexpr___TOP__tb_core__DOT__rst_n__0;
         CData/*0:0*/ __VactPhaseResult;
         CData/*0:0*/ __VinactPhaseResult;
         CData/*0:0*/ __VnbaPhaseResult;
         SData/*11:0*/ tb_core__DOT__core__DOT__csr_reg_ex;
-    };
-    struct {
         SData/*11:0*/ tb_core__DOT__core__DOT__csr_reg_wb;
         SData/*11:0*/ tb_core__DOT__core__DOT__csr_reg_mem;
         SData/*11:0*/ tb_core__DOT__core__DOT__hazard_unit__DOT__csr_ex;
@@ -97,6 +102,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_core___024root final {
         IData/*31:0*/ tb_core__DOT__core__DOT__pc_plus_4_id;
         IData/*31:0*/ tb_core__DOT__core__DOT__imm_id;
         IData/*31:0*/ tb_core__DOT__core__DOT__rs1_data_id;
+        IData/*31:0*/ tb_core__DOT__core__DOT__zimm_id;
+        IData/*31:0*/ tb_core__DOT__core__DOT__csr_content_id;
         IData/*31:0*/ tb_core__DOT__core__DOT__csr_data_ex;
         IData/*31:0*/ tb_core__DOT__core__DOT__imm_ex;
         IData/*31:0*/ tb_core__DOT__core__DOT__zimm_ex;
@@ -104,23 +111,28 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_core___024root final {
         IData/*31:0*/ tb_core__DOT__core__DOT__pc_plus_4_ex;
         IData/*31:0*/ tb_core__DOT__core__DOT__rs1_data_ex;
         IData/*31:0*/ tb_core__DOT__core__DOT__rs2_data_ex;
+        IData/*31:0*/ tb_core__DOT__core__DOT__csr_content_ex;
         IData/*31:0*/ tb_core__DOT__core__DOT__alu_result_ex;
-        IData/*31:0*/ tb_core__DOT__core__DOT__alu_operand_a_ex;
         IData/*31:0*/ tb_core__DOT__core__DOT__alu_operand_b_ex;
         IData/*31:0*/ tb_core__DOT__core__DOT__pc_wb;
         IData/*31:0*/ tb_core__DOT__core__DOT__csr_data_wb;
         IData/*31:0*/ tb_core__DOT__core__DOT__lui_wb;
         IData/*31:0*/ tb_core__DOT__core__DOT__alu_result_wb;
         IData/*31:0*/ tb_core__DOT__core__DOT__pc_plus_4_wb;
+        IData/*31:0*/ tb_core__DOT__core__DOT__csr_content_wb;
         IData/*31:0*/ tb_core__DOT__core__DOT__pc_mem;
         IData/*31:0*/ tb_core__DOT__core__DOT__lui_mem;
         IData/*31:0*/ tb_core__DOT__core__DOT__rs2_data_mem;
         IData/*31:0*/ tb_core__DOT__core__DOT__alu_result_mem;
         IData/*31:0*/ tb_core__DOT__core__DOT__pc_plus_4_mem;
+        IData/*31:0*/ tb_core__DOT__core__DOT__csr_content_mem;
         IData/*31:0*/ tb_core__DOT__core__DOT__csr_data_mem;
         IData/*31:0*/ tb_core__DOT__core__DOT__w_data_mem;
         IData/*31:0*/ tb_core__DOT__core__DOT__bit_mask_mem;
         IData/*31:0*/ tb_core__DOT__core__DOT__r_data_wb;
+        IData/*31:0*/ tb_core__DOT__core__DOT__pc_controller__DOT__jalr_target_raw;
+        IData/*31:0*/ tb_core__DOT__core__DOT__main_mem__DOT__dram_r_data_raw;
+        IData/*31:0*/ tb_core__DOT__core__DOT__main_mem__DOT__shifted_mask;
         IData/*31:0*/ tb_core__DOT__core__DOT__decoder__DOT__imm_I;
         IData/*31:0*/ tb_core__DOT__core__DOT__csr_file__DOT__misa;
         IData/*31:0*/ tb_core__DOT__core__DOT__csr_file__DOT__mvendorid;
@@ -135,20 +147,20 @@ class alignas(VL_CACHE_LINE_BYTES) Vtb_core___024root final {
         IData/*31:0*/ tb_core__DOT__core__DOT__csr_file__DOT__mcause;
         IData/*31:0*/ tb_core__DOT__core__DOT__csr_file__DOT__mscratch;
         IData/*31:0*/ tb_core__DOT__core__DOT__csr_file__DOT__mtval;
+    };
+    struct {
         IData/*31:0*/ tb_core__DOT__core__DOT__alu__DOT__add_output;
         IData/*31:0*/ tb_core__DOT__core__DOT__alu__DOT__sub_output;
         IData/*31:0*/ tb_core__DOT__core__DOT__alu__DOT__slt_output;
+        IData/*31:0*/ tb_core__DOT__core__DOT__alu__DOT__sltu_output;
         IData/*31:0*/ __VdlyVal__tb_core__DOT__core__DOT__main_mem__DOT__mem__v0;
         IData/*17:0*/ __VdlyDim0__tb_core__DOT__core__DOT__main_mem__DOT__mem__v0;
         IData/*31:0*/ __VdlyVal__tb_core__DOT__core__DOT__regfile__DOT__regs__v0;
         IData/*31:0*/ __VactIterCount;
         IData/*31:0*/ __VinactIterCount;
         IData/*31:0*/ __Vi;
-        QData/*32:0*/ tb_core__DOT__core__DOT__csr_out_ex;
         VlUnpacked<IData/*31:0*/, 262144> tb_core__DOT__core__DOT__main_mem__DOT__mem;
         VlUnpacked<IData/*31:0*/, 32> tb_core__DOT__core__DOT__regfile__DOT__regs;
-    };
-    struct {
         VlUnpacked<QData/*63:0*/, 1> __VstlTriggered;
         VlUnpacked<QData/*63:0*/, 1> __VactTriggered;
         VlUnpacked<QData/*63:0*/, 1> __VactTriggeredAcc;

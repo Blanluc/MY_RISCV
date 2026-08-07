@@ -11,6 +11,7 @@ module mem_wb_reg (
     input logic [4:0]  rd_mem,
     input logic [11:0]  csr_reg_mem,
     input logic [31:0]  csr_data_mem,
+    input logic [31:0]  csr_content_mem,
     input logic [31:0] pc_mem,
     input logic [31:0] lui_mem,
     input logic [31:0] pc_plus_4_mem,
@@ -27,6 +28,7 @@ module mem_wb_reg (
     output logic [4:0]  rd_wb,
     output logic [11:0]  csr_reg_wb,
     output logic [31:0]  csr_data_wb,
+    output logic [31:0]  csr_content_wb,
     output logic [31:0] pc_wb,
     output logic [31:0] pc_plus_4_wb,
     output logic [31:0] lui_wb,
@@ -47,6 +49,7 @@ module mem_wb_reg (
         rd_wb <= '0;
         csr_reg_wb <= '0;
         csr_data_wb <= '0;
+        csr_content_wb <= '0;
         lui_wb <= '0;
         //mem_r_wb <= '0;
         mem_w_wb <= '0;
@@ -72,6 +75,7 @@ module mem_wb_reg (
         rd_wb <= rd_mem;
         csr_reg_wb <= csr_reg_mem;
         csr_data_wb <= csr_data_mem;
+        csr_content_wb <= csr_content_mem;
         lui_wb <= lui_mem;
         //mem_r_wb <= mem_r_mem;
         mem_w_wb <= mem_w_mem;

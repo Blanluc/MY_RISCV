@@ -16,7 +16,7 @@ module id_ex_reg (
     input logic [11:0]  csr_reg_id,
     input logic [2:0]  funct3_id,
     input logic [6:0]  funct7_id,
-    input logic [31:0]  csr_data_id,
+    input logic [31:0]  csr_content_id,
     input logic [31:0]  rs1_data_id,
     input logic [31:0]  rs2_data_id,
     input logic [31:0] imm_id,
@@ -29,7 +29,7 @@ module id_ex_reg (
     input logic        csr_write_id, 
     input logic [2:0]  wb_sel_id,
 
-    input  logic        flush_ex,
+    input  logic        flush_ex, // may be problematic
 
 
     output logic [6:0] opcode_ex,
@@ -39,7 +39,7 @@ module id_ex_reg (
     output logic [6:0]  funct7_ex,
     output logic [31:0]  rs1_data_ex,
     output logic [31:0]  rs2_data_ex,
-    output logic [31:0]  csr_data_ex,
+    output logic [31:0]  csr_content_ex,
     output logic [31:0] imm_ex,
     output logic [31:0] zimm_ex,
     output logic [31:0] pc_ex,
@@ -63,6 +63,7 @@ module id_ex_reg (
         funct3_ex <= '0;
         funct7_ex <= '0;
         rs1_data_ex <= '0;
+        csr_content_ex <= '0;
         rs2_data_ex <= '0;
         imm_ex <= '0;
         zimm_ex <= '0;
@@ -74,6 +75,28 @@ module id_ex_reg (
         csr_write_ex <= '0;
         wb_sel_ex <= '0;
     end
+    // else if (stall) begin
+    //     pc_ex <= '0;
+    //     opcode_ex <= '0;
+    //     rd_ex <= '0;
+    //     csr_reg_ex <= '0;
+    //     funct3_ex <= '0;
+    //     funct7_ex <= '0;
+    //     rs1_data_ex <= '0; // careful
+    //     rs2_data_ex <= '0;
+    //     imm_ex <= '0;
+    //     zimm_ex <= '0;
+    //     csr_content_ex <= '0;
+    
+    //     //mem_r_ex <= mem_r_ex;
+    //     mem_w_ex <= '0;
+    //     rs2_sel_ex <= '0;
+    //     rs1_sel_ex <= '0;
+    //     reg_write_ex <= '0;
+    //     csr_write_ex <= '0;
+    //     wb_sel_ex <= '0;
+    //     pc_plus_4_ex <= '0;
+    // end
     else if (stall) begin
         pc_ex <= pc_ex;
         opcode_ex <= opcode_ex;
@@ -85,6 +108,7 @@ module id_ex_reg (
         rs2_data_ex <= rs2_data_ex;
         imm_ex <= imm_ex;
         zimm_ex <= zimm_ex;
+        csr_content_ex <= csr_content_ex;
     
         //mem_r_ex <= mem_r_ex;
         mem_w_ex <= mem_w_ex;
@@ -100,6 +124,7 @@ module id_ex_reg (
         opcode_ex <= opcode_id;
         rd_ex <= rd_id;
         csr_reg_ex <= csr_reg_id;
+        csr_content_ex <= csr_content_id;
         funct3_ex <= funct3_id;
         funct7_ex <= funct7_id;
         rs1_data_ex <= rs1_data_id;

@@ -8,7 +8,8 @@ module csr_unit (
     input  logic [31:0] csr_in,
 
     //output  logic [31:0] src1_out, I dont think I need this
-    output  logic [31:0] csr_out
+    output  logic [31:0] csr_out,
+    output  logic [31:0] src1_out
 );
 
     // internal signals
