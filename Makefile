@@ -17,6 +17,7 @@ sim:
 	  rtl/mem_controller.sv \
 	  rtl/pc_controller.sv \
 	  rtl/branch_unit.sv \
+	  rtl/uart.sv \
 	  tb/tb_core.sv
 
 run:

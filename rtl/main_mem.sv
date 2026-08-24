@@ -30,6 +30,11 @@ module main_mem #(
     //input  logic  is_unsigned, // use both as indicator and mask
     output logic [31:0] instr, // instr
     output logic [31:0] dram_r_data // data
+
+    // UART STUFF
+    // input  logic uart_busy,
+    // output logic [31:0] uart_data, // data
+    // output logic uart_tx_en // data
 );
 
     // ROM, RAM, I/O (1GB)
@@ -59,6 +64,13 @@ module main_mem #(
 
     //initial $readmemh("sw/rom.hex", mem, 32'h00000000, 32'h0FFFFFFF);
 
+    // UART SIGNAL
+    logic uart_busy;
+    logic [7:0] uart_data; // data
+    logic uart_tx_en; // data
+    logic write_toggle;
+    logic rst;
+
     // initialize to 0
     initial begin
         for (int i=0;i<DEPTH;i++) begin
@@ -68,6 +80,10 @@ module main_mem #(
         $readmemh("sw/rom.hex", mem);
         //$display("HELLO");
         //$display("MEM[0x14f50] = %h", mem[(32'h14f50 - BASE) >> 2]);   // BASE = 32'h4000
+
+        // uart toggle signal
+        write_toggle = 0;
+        rst =1;
         
     end
 
@@ -149,6 +165,73 @@ module main_mem #(
     end
     // if signed => take msb
 
+    // UART LOGIC
+
+    // IF WRITE TO 0x1000 0000 : beginf transmission of 55 chars
+
+    
+    integer write_counter;
+    integer read_counter;
+    logic [31:0] uart_addr;
+    logic [31:0] uart_addr_next;
+    logic [1:0] uart_addr_lsb;
+    logic [4:0] uart_shift_amt;
+    logic [31:0] dram_r_data_raw_uart;
+    // shift_amt = {3'b0, addr_lsb} << 3;
+    assign uart_addr_lsb=uart_addr[1:0];
+    assign uart_shift_amt={3'b0, uart_addr_lsb} << 3;
+    assign dram_r_data_raw_uart = (mem[(uart_addr-BASE)>>2] & 32'h000000FF) >> uart_shift_amt;
+    reg  [55*8-1:0] 	send_string;
+
+    // [7:0] ; [15:8] ; [23:16]
+    
+    always_ff @(posedge clk) begin
+        if (dram_addr == 32'h10000000 & dram_write_en) begin
+            write_toggle = 1; // INIT TRANSFER OF 55 CHARS
+            //write_counter = 0;
+            //uart_addr= 32'h10000000;
+            //uart_data = (dram_w_data[7:0]);
+            //uart_tx_en = 1;
+            send_string[write_counter*8 +: 8] = dram_w_data[7:0];
+            write_counter += 1;
+            //$display("UART DATA : %c",uart_data);
+            //$display("UART OUT : %d",uart_out);
+        end 
+        if (write_toggle==1 & uart_busy==0 & read_counter <= 55) begin
+            //$display("UART OUT : %d",uart_out);
+            //$display("write_counter : %d",write_counter);
+            //write_counter +=1;
+            read_counter += 1;
+            //uart_addr += 1;
+            uart_data = send_string[read_counter*8 +: 8];
+            //$display("UART DATA : %c",uart_data);
+            uart_tx_en = 1;
+        end  
+        else if (read_counter >= 55) begin
+            $display("STRING IN BUFF : %s",send_string);
+            write_counter = 0;
+            read_counter = 0;
+            uart_addr= 32'h10000000;
+            uart_tx_en = 0;
+            write_toggle=0;
+        end
+        else begin
+            uart_tx_en = 0;
+
+        end
+    end
+
+logic uart_out;
+uart_transmitter uart_transmitter(
+        .clk  (clk),
+        .rst (rst),
+        .tx_data(uart_data),
+        .tx_en(uart_tx_en),
+        .tx_busy(uart_busy),
+        .tx_o(uart_out) 
+    );
+
+    
 
 
 

@@ -23,7 +23,8 @@ module ex_mem_reg (
     input logic        csr_write_ex, 
     input logic [2:0]  wb_sel_ex,
     input logic [31:0] alu_result_ex,
-    input logic [31:0] lui_ex,
+    //input logic [31:0] lui_ex,
+    input logic [31:0] imm_ex,
     input  logic        alu_zero_ex,
     input logic [31:0] rs2_data_ex,
 
@@ -35,7 +36,8 @@ module ex_mem_reg (
     output logic [31:0]  csr_content_mem,
     output logic [31:0] pc_mem,
     output logic [31:0] pc_plus_4_mem,
-    output logic [31:0] lui_mem,
+    //output logic [31:0] lui_mem,
+    output logic [31:0] imm_mem,
     output logic [6:0]  opcode_mem,
     output logic [2:0]  funct3_mem,
     //output logic        mem_r_mem, 
@@ -50,7 +52,8 @@ module ex_mem_reg (
     always_ff @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin// rst_n is active low // if stall, we flush
         pc_mem <= '0;
-        lui_mem <= '0;
+        //lui_mem <= '0;
+        imm_mem <= '0;
         pc_plus_4_mem <= '0;
         rd_mem <= '0;
         csr_reg_mem <= '0;
@@ -87,7 +90,8 @@ module ex_mem_reg (
         csr_reg_mem <= csr_reg_ex;
         csr_data_mem <= csr_data_ex;
         csr_content_mem <= csr_content_ex;
-        lui_mem <= lui_ex;
+        //lui_mem <= lui_ex;
+        imm_mem <= imm_ex;
         //mem_r_mem <= mem_r_ex;
         funct3_mem <= funct3_ex;
         mem_w_mem <= mem_w_ex;

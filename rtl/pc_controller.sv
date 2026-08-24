@@ -31,7 +31,7 @@ module pc_controller (
     input  logic [31:0] imm_id, // if non relative jump  // it seems they re all relative except jalr but jalr comes from alu // wait mb not
     input  logic [31:0] imm_ex,
     input  logic [31:0] rs1_data, // ADDED
-    input  logic [31:0] lui_ex,
+    //input  logic [31:0] lui_ex,
     output logic [31:0] pc_next, // maybe not a sel, maybe do it directly here
     output logic flush_ex,
     output logic flush_id

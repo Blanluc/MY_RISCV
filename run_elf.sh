@@ -19,6 +19,7 @@ OUTPUT=$(cd "$SIMDIR" && ./obj_dir/Vtb_core 2>&1)
 # Check result
 if echo "$OUTPUT" | grep -q "PASS"; then
     echo "RVCP-SUMMARY: TEST PASSED - Test File \"$(basename $ELF)\""
+    echo "$OUTPUT" # So it shows prints
     exit 0
 else
     echo "RVCP-SUMMA RY: TEST FAILED - Test File \"$(basename $ELF)\""

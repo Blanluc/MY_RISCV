@@ -91,7 +91,7 @@ int cycle_count = 0;
 always @(posedge clk) begin
   //$display("T=%0t A0_REGFILE=%h", $time, core.regfile.regs[10]);
     cycle_count <= cycle_count + 1;
-    if (cycle_count >= 10000000) begin
+    if (cycle_count >= 1000000) begin
     //if (cycle_count >= 40) begin
         $display("TIMEOUT");
         $finish;
@@ -105,7 +105,9 @@ always @(posedge clk) begin
         //     $display("RVCP-SUMMARY: TEST PASSED - Test File \"test\"");
         // else
         //     $display("RVCP-SUMMARY: TEST FAILED - Test File \"test\"");
-        $finish;
+        
+        // COMMENTED TO TEST UART
+        //$finish;
     end
 end
 
