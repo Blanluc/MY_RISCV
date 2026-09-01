@@ -5,14 +5,12 @@ module mem_controller (
     input logic [6:0] opcode,
     input logic [2:0] funct3,
     input logic [1:0] addr_lsb, 
-    //output logic [31:0]  alu_result, // alu result telling us where to store
     output logic [31:0]  bit_mask,
     output logic [4:0]  shift_amt,
     output logic sign_extend
 );
 
     //logic [31:0] raw_data;
-  
 
     always_comb begin
         sign_extend = funct3[2];

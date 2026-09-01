@@ -12,9 +12,12 @@ module tb_core;
 
 reg 	    clk;
 reg         rst_n; 		// To drive input "rstn" of the DUT
+reg         uart_tx_o;
+
 
 core core (	.clk  (clk),
-			.rst_n (rst_n)	    
+			.rst_n (rst_n),	  
+            .uart_tx_o (uart_tx_o)  
 			);
 
 task reset_release();
@@ -45,9 +48,9 @@ end
 int i=0;
 always #5 clk = ~clk;
 
-int y=0;
+//int y=0;
 
-assign y=core.regfile.regs[10];
+//assign y=core.regfile.regs[10];
 
 // always @(posedge clk) begin
 //   $display("CYCLE=%d",i);
@@ -91,8 +94,12 @@ int cycle_count = 0;
 always @(posedge clk) begin
   //$display("T=%0t A0_REGFILE=%h", $time, core.regfile.regs[10]);
     cycle_count <= cycle_count + 1;
-    if (cycle_count >= 1000000) begin
+    if (cycle_count >= 10000000) begin
     //if (cycle_count >= 40) begin
+        // $display("a0=%0d a1=%0d a2=%0d a3=%0d", core.regfile.regs[10], core.regfile.regs[11], core.regfile.regs[12], core.regfile.regs[13]);
+        // $display("a4=0x%0h a5=0x%0h a6=0x%0h a7=0x%0h", core.regfile.regs[14], core.regfile.regs[15], core.regfile.regs[16], core.regfile.regs[17]);
+        // $display("s2=0x%0h s3=%0d s4=%0d s5=%0d", core.regfile.regs[18], core.regfile.regs[19], core.regfile.regs[20], core.regfile.regs[21]);
+        // $display("s6=%0d s7=%0d s8=%0d s9=%0d s10=%0d", core.regfile.regs[22], core.regfile.regs[23], core.regfile.regs[24], core.regfile.regs[25], core.regfile.regs[26]);
         $display("TIMEOUT");
         $finish;
     end
@@ -100,14 +107,15 @@ end
 
 //Halt detection
 always @(posedge clk) begin
-    if (core.mem_w_mem && core.alu_result_mem == 32'h20000000) begin
+    if (core.mem_w_mem1 && core.alu_result_mem1 == 32'h20000000) begin
+        //$display("HERE");
         // if (core.w_data_mem != 32'h0)
         //     $display("RVCP-SUMMARY: TEST PASSED - Test File \"test\"");
         // else
         //     $display("RVCP-SUMMARY: TEST FAILED - Test File \"test\"");
         
         // COMMENTED TO TEST UART
-        //$finish;
+        $finish;
     end
 end
 

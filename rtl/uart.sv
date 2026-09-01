@@ -68,14 +68,14 @@ always @(posedge clk) begin
         IDLE: begin
                 hold_counter =0;
                 tx_busy = 0;
-                bit_counter = 0;
+                bit_counter_next = 0;
                 shift_reg='0;
                 debug_counter =0;
                 //$display("ENABLE : %d",tx_en);
                 if (tx_en) begin
                   tx_busy = 1;
                   //$display("HOLD VALUE = %d ",hold_value);
-                  $display("LETTER TO BE SENT : %c",tx_data);
+                  //$display("LETTER TO BE SENT : %c",tx_data);
                   next_state = DATA; // Transition to START on tx_en
                 end
                 //next_state = IDLE;

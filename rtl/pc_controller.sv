@@ -30,21 +30,23 @@ module pc_controller (
     input  logic [31:0] alu_result, // if branch
     input  logic [31:0] imm_id, // if non relative jump  // it seems they re all relative except jalr but jalr comes from alu // wait mb not
     input  logic [31:0] imm_ex,
-    input  logic [31:0] rs1_data, // ADDED
-    //input  logic [31:0] lui_ex,
+    input  logic [31:0] rs1_data,
     output logic [31:0] pc_next, // maybe not a sel, maybe do it directly here
     output logic flush_ex,
     output logic flush_id
-    //output logic is_jalr
  
 );
 
 logic [31:0] jalr_target_raw;
 
+
 logic debug_jump;
 
     always_comb begin
-        // $display("PC CONTROLLER : ");
+        if (pc_branch==32'h0002510c) begin
+                $display("here ");
+                $display("alu_zero : %d ", alu_zero);
+        end
         // $display("pc_in : %0h",pc);
         // $display("imm_id : %0d",imm_id);
         // $display("imm_ex : %0d",imm_ex);
@@ -57,21 +59,15 @@ logic debug_jump;
             debug_jump =0;
         end
         else if (opcode_ex == `OPCODE_BRANCH && alu_zero) begin //opcode_id ==`OPCODE_JALR begin // determined at ex stage
-        //$display("JALR!!");
-        
+            if (pc_branch==32'h000085b0) begin
+                $display("BRANCH TAKEN PC = %h",pc_branch);
+            end
             pc_next = pc_branch + imm_ex;
             //$display("PC NEXT : %0d",pc_next);
             flush_ex =1; // check
             flush_id =1;
-            //is_jalr=0;
             debug_jump =1;
         end
-        // else if (opcode_ex == `OPCODE_AUIPC) begin // determined at id stage
-        //     pc_next = pc_branch + lui_ex;
-        //     debug_jump =1;
-        //     flush_ex =1;
-        //     flush_id =1;
-        // end
         else if (opcode_id == `OPCODE_JAL) begin // determined at id stage
             pc_next = pc_jump + imm_id;
             debug_jump =1;
@@ -84,14 +80,12 @@ logic debug_jump;
             pc_next = {jalr_target_raw[31:1],1'b0};
             debug_jump =1;
             flush_ex =0;
-            //is_jalr=1;
             flush_id =1;
         end
         else begin 
             pc_next = pc_plus_4;
             flush_ex =0;
             flush_id =0;
-            //is_jalr=0;
         end
     end     
 

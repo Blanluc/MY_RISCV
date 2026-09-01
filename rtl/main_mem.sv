@@ -10,12 +10,12 @@
 
 module main_mem #(
     parameter int unsigned DEPTH = 262144 , // 1MB
-    parameter logic [31:0] BASE = 32'h00004000
-    //localparam logic [31:0] BASE = 32'h00000000
+    //parameter int unsigned DEPTH = 1024 ,
+    parameter logic [31:0] BASE = 32'h00004000,
+    //parameter logic [31:0] BASE = 32'h00000000,
+    parameter MEM_INIT_FILE = "rom.hex"
 )(
     input  logic        clk,
-    //input  logic        stall,
-    //input  logic        rom_en,
     input  logic        dram_write_en,
 
     input  logic [31:0] rom_addr, // PC feeds straight in
@@ -27,14 +27,14 @@ module main_mem #(
     input  logic [31:0] dram_w_data, // write
     input  logic [31:0] dram_bit_mask, // dram
 
+    input logic flush_id,
+    input logic stall,
+
     //input  logic  is_unsigned, // use both as indicator and mask
     output logic [31:0] instr, // instr
+    output logic uart_tx_o,
     output logic [31:0] dram_r_data // data
 
-    // UART STUFF
-    // input  logic uart_busy,
-    // output logic [31:0] uart_data, // data
-    // output logic uart_tx_en // data
 );
 
     // ROM, RAM, I/O (1GB)
@@ -60,10 +60,6 @@ module main_mem #(
 
     logic [31:0] mem [0:DEPTH-1];
 
-    // $readmemh("hex_memory_file.mem", memory_array, [start_address], [end_address])
-
-    //initial $readmemh("sw/rom.hex", mem, 32'h00000000, 32'h0FFFFFFF);
-
     // UART SIGNAL
     logic uart_busy;
     logic [7:0] uart_data; // data
@@ -71,15 +67,9 @@ module main_mem #(
     logic write_toggle;
     logic rst;
 
-    // initialize to 0
+
     initial begin
-        for (int i=0;i<DEPTH;i++) begin
-            mem[i]=32'b0;
-        end
-        //$readmemh("sw/rom.hex", mem, 32'h00000000, 32'h0FFFFFFF);
-        $readmemh("sw/rom.hex", mem);
-        //$display("HELLO");
-        //$display("MEM[0x14f50] = %h", mem[(32'h14f50 - BASE) >> 2]);   // BASE = 32'h4000
+        $readmemh(MEM_INIT_FILE, mem);
 
         // uart toggle signal
         write_toggle = 0;
@@ -116,54 +106,95 @@ module main_mem #(
 
     localparam logic [31:0] UART_ADDR = 32'h10000000;
     logic dram_write_en_prev;
-    always_ff @(posedge clk) dram_write_en_prev <= dram_write_en;
+
+    // ADDED
+    logic  msb;
+    logic [31:0] dram_r_data_raw;
+    logic [31:0] shifted_mask;
+    logic [31:0] dram_r_data_next;
+
+    assign shifted_mask = dram_bit_mask >> shift_amt;
+    assign dram_r_data_raw = (mem[(dram_addr-BASE)>>2] & dram_bit_mask) >> shift_amt;
+
+
+    always_comb begin
+        case (sign_extend)
+            1 : begin 
+                if (shifted_mask[15]) begin
+                    dram_r_data_next = 32'(signed' (dram_r_data_raw[15:0]));
+                end
+                else if (shifted_mask[7] ) begin
+                    dram_r_data_next = 32'(signed' (dram_r_data_raw[7:0]));
+                end else begin
+                dram_r_data_next = dram_r_data_raw;
+                end
+            end
+            default : dram_r_data_next = dram_r_data_raw;
+        endcase
+    end
 
     always_ff @(posedge clk) begin
+        dram_write_en_prev <= dram_write_en;
         if (dram_write_en) begin
             if (dram_write_en && !dram_write_en_prev && dram_addr == UART_ADDR) begin
             $write("%c", dram_w_data[7:0]);
             end else begin
-            //mem[(dram_addr-BASE)>>2] <= (dram_w_data & dram_bit_mask) | (mem[(dram_addr-BASE)>>2] & ~dram_bit_mask);
             mem[(dram_addr-BASE)>>2] <= ((dram_w_data << shift_amt) & dram_bit_mask) | (mem[(dram_addr-BASE)>>2] & ~dram_bit_mask);
             end
+        end     
+
+        // ADDED BEGIN
+        if (flush_id) begin
+            instr <= '0;
+        end else if (stall) begin
+            instr <= instr;
         end
+        else begin
+            instr <= mem[(rom_addr-BASE)>>2];
+        end
+        
+
+        dram_r_data <= dram_r_data_next;
+        //shifted_mask <= dram_bit_mask >> shift_amt;
+        //dram_r_data_raw <= (mem[(dram_addr-BASE)>>2] & dram_bit_mask) >> shift_amt;
+
+        
+        // ADDED END
+
+
     end
 
-//     always_ff @(posedge clk) begin
-//   if (dram_write_en)
-//     $display("T=%0t PC=%h WRITE_EN=%b PREV=%b ADDR=%h DATA=%c", $time, core.pc_ex, dram_write_en, dram_write_en_prev, dram_addr, dram_w_data);
-// end
-
-    logic [31:0] debug_mem_addr;
-    assign debug_mem_addr = (dram_addr-BASE)>>2;
+/*
+    //logic [31:0] debug_mem_addr;
+    //assign debug_mem_addr = (dram_addr-BASE)>>2;
     assign instr = mem[(rom_addr-BASE)>>2];
-
     logic  msb;
-
-    
-
-    // assign dram_r_data = (mem[(dram_addr-BASE)>>2] & dram_bit_mask);
     logic [31:0] dram_r_data_raw;
     logic [31:0] shifted_mask;
     assign shifted_mask = dram_bit_mask >> shift_amt;
     assign dram_r_data_raw = (mem[(dram_addr-BASE)>>2] & dram_bit_mask) >> shift_amt;
+
+    
     always_comb begin
         case (sign_extend)
-        1 : begin 
-            if (shifted_mask[15]) begin
-                dram_r_data = 32'(signed' (dram_r_data_raw[15:0]));
+            1 : begin 
+                if (shifted_mask[15]) begin
+                    dram_r_data = 32'(signed' (dram_r_data_raw[15:0]));
+                end
+                else if (shifted_mask[7] ) begin
+                    dram_r_data = 32'(signed' (dram_r_data_raw[7:0]));
+                end else begin
+                dram_r_data = dram_r_data_raw;
+                end
             end
-            else if (shifted_mask[7] ) begin
-                dram_r_data = 32'(signed' (dram_r_data_raw[7:0]));
-            end else begin
-            dram_r_data = dram_r_data_raw;
-            end
-        end
-        default : dram_r_data = dram_r_data_raw;
-
+            default : dram_r_data = dram_r_data_raw;
         endcase
     end
+    */
     // if signed => take msb
+
+
+
 
     // UART LOGIC
 
@@ -177,59 +208,49 @@ module main_mem #(
     logic [1:0] uart_addr_lsb;
     logic [4:0] uart_shift_amt;
     logic [31:0] dram_r_data_raw_uart;
-    // shift_amt = {3'b0, addr_lsb} << 3;
+    
     assign uart_addr_lsb=uart_addr[1:0];
     assign uart_shift_amt={3'b0, uart_addr_lsb} << 3;
     assign dram_r_data_raw_uart = (mem[(uart_addr-BASE)>>2] & 32'h000000FF) >> uart_shift_amt;
     reg  [55*8-1:0] 	send_string;
 
-    // [7:0] ; [15:8] ; [23:16]
+
     
     always_ff @(posedge clk) begin
         if (dram_addr == 32'h10000000 & dram_write_en) begin
-            write_toggle = 1; // INIT TRANSFER OF 55 CHARS
-            //write_counter = 0;
-            //uart_addr= 32'h10000000;
-            //uart_data = (dram_w_data[7:0]);
-            //uart_tx_en = 1;
-            send_string[write_counter*8 +: 8] = dram_w_data[7:0];
-            write_counter += 1;
-            //$display("UART DATA : %c",uart_data);
-            //$display("UART OUT : %d",uart_out);
+            write_toggle <= 1; // INIT TRANSFER OF 55 CHARS
+            send_string[write_counter*8 +: 8] <= dram_w_data[7:0];
+            write_counter <= write_counter + 1;
         end 
         if (write_toggle==1 & uart_busy==0 & read_counter <= 55) begin
-            //$display("UART OUT : %d",uart_out);
-            //$display("write_counter : %d",write_counter);
-            //write_counter +=1;
-            read_counter += 1;
-            //uart_addr += 1;
-            uart_data = send_string[read_counter*8 +: 8];
-            //$display("UART DATA : %c",uart_data);
-            uart_tx_en = 1;
+            read_counter <= read_counter + 1;
+            uart_data <= send_string[read_counter*8 +: 8];
+            uart_tx_en <= 1;
         end  
         else if (read_counter >= 55) begin
-            $display("STRING IN BUFF : %s",send_string);
-            write_counter = 0;
-            read_counter = 0;
-            uart_addr= 32'h10000000;
-            uart_tx_en = 0;
-            write_toggle=0;
+            //$display("STRING IN BUFF : %s",send_string);
+            write_counter <= 0;
+            read_counter <= 0;
+            uart_addr <= 32'h10000000;
+            uart_tx_en <= 0;
+            write_toggle<=0;
         end
         else begin
-            uart_tx_en = 0;
+            uart_tx_en <= 0;
 
         end
     end
 
-logic uart_out;
+
 uart_transmitter uart_transmitter(
         .clk  (clk),
         .rst (rst),
         .tx_data(uart_data),
         .tx_en(uart_tx_en),
         .tx_busy(uart_busy),
-        .tx_o(uart_out) 
+        .tx_o(uart_tx_o) 
     );
+
 
     
 

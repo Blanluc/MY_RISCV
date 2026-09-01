@@ -28,12 +28,7 @@ module alu (
     logic alu_zero_sltu;
     logic alu_zero_and;
 
-    // TODO : How to handle NOP?
-    
-
-    //logic [31:0]  operand_b_negate;
-
-    //assign operand_b_negate = !operand_b + 1'b1;
+   
 
     // NOTE : default is unsigned, but for things like add and sub it doesnt matter
 
@@ -41,14 +36,13 @@ module alu (
     assign add_output = operand_a + operand_b;
     // SUB
     assign sub_output = operand_a - operand_b;
-
     // XOR
     assign xor_output = operand_a ^ operand_b;
     // OR
     assign or_output = operand_a | operand_b;
     // AND
     assign and_output = operand_a & operand_b;
-
+    // AND NOT
     assign andn_output = operand_a & (~operand_b);
 
     //Shifts : RISC V isa only uses 5 lower bits of src2
@@ -96,6 +90,18 @@ module alu (
 
 
     always_comb begin
+
+        if (core.pc_ex==32'h000085b0) begin
+                $display("here ");
+                $display("op1 : %h ", operand_a);
+                $display("op2 : %h ", operand_b);
+        end
+
+        if (core.pc_ex==32'h000085ac) begin
+                $display("IMPORTANT ");
+                $display("op1 : %h ", operand_a);
+                $display("op2 : %h ", operand_b);
+        end
 
         case(operator)
 

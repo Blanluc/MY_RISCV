@@ -10,9 +10,10 @@ sim:
 	  rtl/pc.sv \
 	  rtl/id_ex_reg.sv \
 	  rtl/if_id_reg.sv \
-	  rtl/ex_mem_reg.sv \
+	  rtl/ex_mem1_reg.sv \
+	  rtl/mem1_mem2_reg.sv \
 	  rtl/alu_controller.sv \
-	  rtl/mem_wb_reg.sv \
+	  rtl/mem2_wb_reg.sv \
 	  rtl/hazard_unit.sv \
 	  rtl/mem_controller.sv \
 	  rtl/pc_controller.sv \
@@ -22,7 +23,7 @@ sim:
 
 run:
 	make -C sw TEST=$(TEST) clean && make -C sw TEST=$(TEST)
-	cp sw/$(TEST).hex sw/rom.hex
+	cp sw/$(TEST).hex rom.hex
 	make sim
 	./obj_dir/Vtb_core
 

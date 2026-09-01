@@ -14,7 +14,6 @@ module decoder (
     output logic [11:0]  csr_reg,
     output logic   rd_x0,
     output logic   rs1_x0,
-    //output logic   is_jalr,
     output logic [31:0] zimm // for csr
 
 );
