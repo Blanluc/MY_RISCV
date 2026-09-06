@@ -1,5 +1,5 @@
 module ram#(
-    parameter int unsigned DEPTH = 65536, // 256kb
+    parameter int unsigned DEPTH = 65536, // 256 KB
     //parameter int unsigned DEPTH = 262144,
     //parameter int unsigned DEPTH = 1024 ,
     //parameter logic [31:0] BASE = 32'h00004000,

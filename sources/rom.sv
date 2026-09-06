@@ -1,5 +1,5 @@
 module rom#(
-    parameter int unsigned DEPTH = 65536, // 32kb
+    parameter int unsigned DEPTH = 65536, // 256 KB
     //parameter int unsigned DEPTH = 1024 ,
     //parameter logic [31:0] BASE = 32'h00004000,
     //parameter logic [31:0] BASE = 32'h00000000,
