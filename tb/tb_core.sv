@@ -27,7 +27,7 @@ endtask
 
 
 initial begin
-  $dumpfile("waves.vcd");
+    $dumpfile("waves.vcd");
     $dumpvars(0, tb_core);  // 0 = dump all levels
 	rst_n = 0;
     clk = 0;
@@ -90,34 +90,60 @@ always #5 clk = ~clk;
 //     end
 // end
 
+// always @(posedge clk) begin
+//     if (core.pc_ex > 32'h00004100 || core.pc_ex < 32'h0000410c) begin
+//         $display("AT PC = %h : gp=%0h sp=%0h", 
+//             core.ram.ram
+//             core.regfile.regs[3],   // gp = x3
+//             core.regfile.regs[2]);  // sp = x2
+//     end
+// end
+
 int cycle_count = 0;
 always @(posedge clk) begin
   //$display("T=%0t A0_REGFILE=%h", $time, core.regfile.regs[10]);
     cycle_count <= cycle_count + 1;
-    if (cycle_count >= 10000000) begin
+    if (cycle_count >= 1000000) begin
     //if (cycle_count >= 40) begin
-        // $display("a0=%0d a1=%0d a2=%0d a3=%0d", core.regfile.regs[10], core.regfile.regs[11], core.regfile.regs[12], core.regfile.regs[13]);
-        // $display("a4=0x%0h a5=0x%0h a6=0x%0h a7=0x%0h", core.regfile.regs[14], core.regfile.regs[15], core.regfile.regs[16], core.regfile.regs[17]);
-        // $display("s2=0x%0h s3=%0d s4=%0d s5=%0d", core.regfile.regs[18], core.regfile.regs[19], core.regfile.regs[20], core.regfile.regs[21]);
-        // $display("s6=%0d s7=%0d s8=%0d s9=%0d s10=%0d", core.regfile.regs[22], core.regfile.regs[23], core.regfile.regs[24], core.regfile.regs[25], core.regfile.regs[26]);
-        $display("TIMEOUT");
+        $display("a0=%0h a1=%0h a2=%0h a3=%0h", core.regfile.regs[10], core.regfile.regs[11], core.regfile.regs[12], core.regfile.regs[13]);
+        $display("a4=0x%0h a5=0x%0h a6=0x%0h a7=0x%0h", core.regfile.regs[14], core.regfile.regs[15], core.regfile.regs[16], core.regfile.regs[17]);
+        $display("s2=0x%0h s3=%0h s4=%0h s5=%0h", core.regfile.regs[18], core.regfile.regs[19], core.regfile.regs[20], core.regfile.regs[21]);
+        $display("s6=%0h s7=%0h s8=%0h s9=%0h s10=%0h", core.regfile.regs[22], core.regfile.regs[23], core.regfile.regs[24], core.regfile.regs[25], core.regfile.regs[26]);
+         $display("TIMEOUT");
         $finish;
     end
 end
 
 //Halt detection
+// Halt detection
+// always @(posedge clk) begin
+//     if (core.mem_w_mem1 && core.alu_result_mem1 == 32'h20000000) begin
+//         $display("RVCP-SUMMARY: TEST PASSED");
+//         $finish;
+//     end
+// end
+
+// always_comb begin
+//         if (core.ram.w_addr==32'h20ca) begin
+//             $display("PC MEM : = %h",core.pc_mem1);
+//             $display("Data in mem = %h",core.ram.ram[32'h20ca]);
+//         end
+//     end
+
+// logic [31:0] prev;
+
 always @(posedge clk) begin
-    if (core.mem_w_mem1 && core.alu_result_mem1 == 32'h20000000) begin
-        //$display("HERE");
-        // if (core.w_data_mem != 32'h0)
-        //     $display("RVCP-SUMMARY: TEST PASSED - Test File \"test\"");
-        // else
-        //     $display("RVCP-SUMMARY: TEST FAILED - Test File \"test\"");
-        
-        // COMMENTED TO TEST UART
-        $finish;
+    if (core.mem_controller.addr_in == 32'h20000000 && core.mem_controller.write_en_in) begin
+        if (core.mem_controller.store_data == 32'h075BCD15) begin
+            $display("RVCP-SUMMARY: TEST PASSED");
+        end else begin
+            $display("RVCP-SUMMARY: TEST FAILED (Exit Code: 0x%h)", core.mem_controller.store_data);
+        end
+        //$finish;
     end
 end
+
+
 
 
 endmodule
